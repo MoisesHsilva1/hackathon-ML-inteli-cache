@@ -1,0 +1,65 @@
+# === Segurança ===
+# Variáveis de ambiente e credenciais
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+secrets.json
+**/credentials/
+**/secrets/
+
+# AWS
+.aws/
+aws-credentials*
+*.aws-credentials
+
+# === Arquivos pesados ===
+# Dados e modelos
+*.csv
+*.parquet
+*.h5
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.bin
+*.tar.gz
+*.zip
+
+# Saídas de processamento
+output/
+*.json
+!data/sample_output.json
+data/sample_input.csv
+*.csv
+!iam/*.json
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+
+# === IDE e sistema ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+logs/

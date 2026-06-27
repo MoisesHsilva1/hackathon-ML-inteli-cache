@@ -1,0 +1,32 @@
+{
+  "Comment": "Política IAM para as Lambdas (trigger + warmup)",
+  "Statement": [
+    {
+      "Sid": "StartSageMakerJob",
+      "Effect": "Allow",
+      "Action": ["sagemaker:CreateProcessingJob","sagemaker:DescribeProcessingJob"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "PassRoleToSageMaker",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::719669559705:role/SageMakerExecutionRole"
+    },
+    {
+      "Sid": "S3ReadOutput",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject","s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::s3-bucket-time-7",
+        "arn:aws:s3:::s3-bucket-time-7/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],
+      "Resource": "arn:aws:logs:*:*:*"
+    }
+  ]
+}

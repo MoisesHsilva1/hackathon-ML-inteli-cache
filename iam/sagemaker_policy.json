@@ -1,0 +1,26 @@
+{
+  "Comment": "Política IAM para a role do SageMaker Processing Job",
+  "Statement": [
+    {
+      "Sid": "S3InputOutput",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject","s3:PutObject","s3:ListBucket","s3:DeleteObject"],
+      "Resource": [
+        "arn:aws:s3:::s3-bucket-time-7",
+        "arn:aws:s3:::s3-bucket-time-7/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],
+      "Resource": "arn:aws:logs:*:*:log-group:/aws/sagemaker/ProcessingJobs*"
+    },
+    {
+      "Sid": "ECRPull",
+      "Effect": "Allow",
+      "Action": ["ecr:GetDownloadUrlForLayer","ecr:BatchGetImage","ecr:GetAuthorizationToken"],
+      "Resource": "*"
+    }
+  ]
+}
