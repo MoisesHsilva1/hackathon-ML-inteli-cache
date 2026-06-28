@@ -6,7 +6,11 @@
         MIN_POLL_MS: 5000,
         MAX_POLL_MS: 120000,
         MAX_CONSECUTIVE_FAILURES: 3,
-        DATA_SOURCES: ['data.json', '../data/sample_output.json']
+        DATA_SOURCES: [
+            'https://s3-bucket-time-7.s3.amazonaws.com/output/warmup/warmup_recommendations.json',
+            'data.json',
+            '../data/sample_output.json'
+        ]
     };
 
     let state = {
