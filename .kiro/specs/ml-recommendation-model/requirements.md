@@ -4,7 +4,7 @@
 
 This feature implements a production-ready ML recommendation model that trains on the existing Polaris access log dataset (~724K records) and deploys as a SageMaker Processing Job. The model evolves the current heuristic-only recommender (v1) and hybrid prototype (v2) into a collaborative filtering system that combines Matrix Factorization (TruncatedSVD) with business heuristics to generate cache warmup recommendations.
 
-The model builds a customer×document interaction matrix from implicit feedback (access frequency), trains a TruncatedSVD decomposition, and produces a hybrid score that blends ML predictions with the existing business scoring formula. Output is a structured JSON consumed by the warmup Lambda to pre-populate the cache.
+The model builds a customer×document interaction matrix from implicit feedback (access frequency), trains a TruncatedSVD decomposition, and produces a hybrid score that blends ML predictions with the existing business scoring formula. Output is a structured JSON file written to the SageMaker output channel.
 
 ## Glossary
 
@@ -16,13 +16,10 @@ The model builds a customer×document interaction matrix from implicit feedback 
 - **Hybrid_Score**: The final recommendation score combining MF_Score and Business_Score using configurable weights: score_final = W_MF · MF_Score + W_BIZ · Business_Score
 - **Warmup_JSON**: The output JSON file containing top-N recommendations across 5 dimensions (reports, features, customers, documents, pairs) plus model metrics and dataset statistics
 - **Processing_Job**: An AWS SageMaker Processing Job using the scikit-learn:1.2-1-cpu-py3 managed image on ml.m5.xlarge instance
-- **Lambda_Trigger**: The AWS Lambda function that detects new CSV files in S3 and starts the Processing_Job
-- **Lambda_Warmup**: The AWS Lambda function that reads the output Warmup_JSON from S3 and calls external APIs to pre-populate the cache
 - **Input_CSV**: A pipe-separated (|) CSV file containing Polaris access logs with fields: ID_REPORT, reportName, TYPE_REPORT, ID_FEATURE, FEATURENAME, FEATURE_TYPE, channel, billing, inquiry, post_report_view, httpStatus, httpTime, inclusionDate, customerDocument, consultedDocument
 - **Implicit_Feedback**: Access frequency used as a proxy for user preference, transformed with log1p to reduce the effect of power-law distributions
 - **Explained_Variance**: The fraction of the total variance in the Interaction_Matrix captured by the SVD_Model components
 - **Reconstruction_RMSE**: The root mean square error between the original Interaction_Matrix values and the SVD_Model reconstruction for non-zero entries
-- **Run_Job_Script**: The Python script (`run_job.py`) that configures and submits the Processing_Job to SageMaker, usable both as a CLI tool and as a Lambda handler
 
 ## Requirements
 
@@ -98,7 +95,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 
 ### Requirement 7: Recommendation Generation
 
-**User Story:** As a cache administrator, I want the Recommender to produce top-N recommendations across 5 dimensions, so that the warmup Lambda can pre-populate the cache with the most valuable entries.
+**User Story:** As a cache administrator, I want the Recommender to produce top-N recommendations across 5 dimensions, so that the output can be used to pre-populate the cache with the most valuable entries.
 
 #### Acceptance Criteria
 
@@ -110,7 +107,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 
 ### Requirement 8: Output JSON Structure
 
-**User Story:** As a Lambda developer, I want the Recommender output to follow a well-defined JSON schema with model metadata, so that downstream consumers can validate and interpret recommendations correctly.
+**User Story:** As a downstream consumer, I want the Recommender output to follow a well-defined JSON schema with model metadata, so that consumers can validate and interpret recommendations correctly.
 
 #### Acceptance Criteria
 
@@ -132,30 +129,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 4. THE Processing_Job SHALL accept all model hyperparameters (ALPHA, BETA, GAMMA, LAMBDA_DECAY, W_MF, W_BIZ, N_COMPONENTS, N_ITER, TOP_N_REPORTS, TOP_N_FEATURES, TOP_N_CUSTOMERS, TOP_N_CDOCS, TOP_N_PAIRS) via environment variables
 5. THE Processing_Job SHALL complete execution within 3600 seconds (MaxRuntimeInSeconds) for datasets up to 1 million records
 
-### Requirement 10: Lambda Trigger Integration
-
-**User Story:** As a DevOps engineer, I want the Lambda_Trigger to start the ML Processing_Job when a new CSV arrives in S3, so that recommendations are automatically refreshed with new data.
-
-#### Acceptance Criteria
-
-1. WHEN a new file with `.csv` extension is created in the S3 input prefix, THE Lambda_Trigger SHALL start a new Processing_Job with a unique job name based on UTC timestamp in the format `cache-warmup-YYYYMMDD-HHMMSS`
-2. WHEN the uploaded file does not have a `.csv` extension, THE Lambda_Trigger SHALL skip processing and return a 200 status with body "skipped"
-3. THE Lambda_Trigger SHALL pass the S3 URI of the uploaded CSV as the input channel source for the Processing_Job
-4. THE Lambda_Trigger SHALL configure the Processing_Job with the ML-enhanced recommender script (`recommender_ml.py`) as the container entrypoint
-5. THE Lambda_Trigger SHALL pass W_MF, W_BIZ, N_COMPONENTS, and N_ITER as environment variables to the Processing_Job in addition to the existing business parameters (ALPHA, BETA, GAMMA, LAMBDA_DECAY, CSV_SEP)
-
-### Requirement 11: Run Job Script Update
-
-**User Story:** As a DevOps engineer, I want the Run_Job_Script to invoke the ML-enhanced recommender instead of the heuristic-only version, so that manual job execution and Lambda-based execution use the same ML pipeline.
-
-#### Acceptance Criteria
-
-1. THE Run_Job_Script SHALL reference `recommender_ml.py` as the container entrypoint script instead of `recommender.py`
-2. THE Run_Job_Script SHALL include ML parameters (W_MF, W_BIZ, N_COMPONENTS, N_ITER) in the MODEL_PARAMS environment dictionary passed to the Processing_Job
-3. THE Run_Job_Script SHALL update the CODE_S3_URI default to point to the `recommender_ml.py` file in S3
-4. THE Run_Job_Script SHALL maintain backward compatibility with the existing `lambda_handler` interface for S3 event-driven invocations
-
-### Requirement 12: Configuration Management
+### Requirement 10: Configuration Management
 
 **User Story:** As a data scientist, I want all model hyperparameters to be configurable via environment variables with sensible defaults, so that I can tune the model without code changes.
 
@@ -167,7 +141,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 4. THE Recommender SHALL read the following top-N parameters from environment variables with defaults: TOP_N_REPORTS=20, TOP_N_FEATURES=30, TOP_N_CUSTOMERS=500, TOP_N_CDOCS=1000, TOP_N_PAIRS=2000
 5. THE Recommender SHALL read I/O path parameters from environment variables with defaults: SM_INPUT_DIR=/opt/ml/processing/input, SM_OUTPUT_DIR=/opt/ml/processing/output, CSV_SEP=|
 
-### Requirement 13: Logging and Observability
+### Requirement 11: Logging and Observability
 
 **User Story:** As a DevOps engineer, I want the Recommender to produce structured logs at each pipeline stage, so that I can monitor execution progress and diagnose failures via CloudWatch.
 
@@ -179,7 +153,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 4. WHEN the pipeline completes, THE Recommender SHALL log the total execution time and the path where the output JSON was saved
 5. WHEN the pipeline completes, THE Recommender SHALL log the top-5 recommended pairs with their customer identifier, document identifier, score value, and volume count
 
-### Requirement 14: Model Versioning and Traceability
+### Requirement 12: Model Versioning and Traceability
 
 **User Story:** As a data scientist, I want the output to include the model version and complete parameter snapshot, so that I can reproduce results and track model evolution across runs.
 
@@ -189,7 +163,7 @@ The model builds a customer×document interaction matrix from implicit feedback 
 2. THE Recommender SHALL include in `model_params` the complete scoring formula as a string, the W_biz sub-formula, and all numeric parameter values (alpha, beta, gamma, lambda, w_mf, w_biz, svd_components, svd_iterations)
 3. THE Recommender SHALL include the `generated_at` timestamp in UTC ISO 8601 format representing the moment the pipeline produces the output
 
-### Requirement 15: Error Resilience
+### Requirement 13: Error Resilience
 
 **User Story:** As a DevOps engineer, I want the Recommender to handle edge cases gracefully, so that transient data issues do not cause complete pipeline failures.
 

@@ -16,14 +16,8 @@ The core insight is that access frequency patterns encode latent user preference
 
 ```mermaid
 flowchart TD
-    subgraph S3["S3 Bucket"]
+    subgraph S3Input["S3 Input"]
         CSV["input/*.csv"]
-        CODE["code/recommender_ml.py"]
-        JSON["output/warmup/warmup_recommendations.json"]
-    end
-
-    subgraph Lambda["AWS Lambda"]
-        TRIGGER["lambda_trigger.py"]
     end
 
     subgraph SageMaker["SageMaker Processing Job (ml.m5.xlarge)"]
@@ -41,29 +35,20 @@ flowchart TD
         M4 --> M5
     end
 
-    CSV -->|"S3 Event"| TRIGGER
-    TRIGGER -->|"create_processing_job"| SageMaker
-    CODE -->|"input channel: /opt/ml/processing/code"| SageMaker
-    CSV -->|"input channel: /opt/ml/processing/input"| SageMaker
-    SageMaker -->|"output channel: EndOfJob"| JSON
-
-    subgraph Downstream["Downstream"]
-        WARMUP["lambda_warmup.py"]
-        CACHE["Cache APIs"]
+    subgraph S3Output["S3 Output"]
+        JSON["output/warmup/warmup_recommendations.json"]
     end
 
-    JSON --> WARMUP --> CACHE
+    CSV -->|"input channel: /opt/ml/processing/input"| SageMaker
+    SageMaker -->|"output channel: EndOfJob"| JSON
 ```
 
 ### Data Flow
 
-1. A new CSV file is uploaded to `s3://<bucket>/input/`
-2. S3 Event Notification triggers `lambda_trigger.py`
-3. Lambda validates the file extension (`.csv`) and starts a SageMaker Processing Job
-4. The Processing Job mounts the CSV at `/opt/ml/processing/input` and runs `recommender_ml.py`
-5. The recommender executes the 6-module pipeline and writes `warmup_recommendations.json` to `/opt/ml/processing/output`
-6. SageMaker uploads the output to `s3://<bucket>/output/warmup/` at EndOfJob
-7. The warmup Lambda reads recommendations and pre-populates the cache
+1. CSV files are available in `s3://<bucket>/input/`
+2. The SageMaker Processing Job mounts them at `/opt/ml/processing/input` and runs `recommender_ml.py`
+3. The recommender executes the 6-module pipeline and writes `warmup_recommendations.json` to `/opt/ml/processing/output`
+4. SageMaker uploads the output to `s3://<bucket>/output/warmup/` at EndOfJob
 
 ### Execution Environment
 
@@ -260,21 +245,6 @@ def run() -> str:
     """
 ```
 
-### Lambda Trigger Updates (`handler/lambda_trigger.py`)
-
-**Changes required:**
-- Update `ContainerEntrypoint` from `recommender.py` to `recommender_ml.py`
-- Add ML parameters (`W_MF`, `W_BIZ`, `N_COMPONENTS`, `N_ITER`) to the `Environment` dict
-- Update `CODE_S3_URI` env var default to reference `recommender_ml.py`
-
-### Run Job Script Updates (`run_job.py`)
-
-**Changes required:**
-- Add `W_MF`, `W_BIZ`, `N_COMPONENTS`, `N_ITER` to `MODEL_PARAMS` dict
-- Update `CODE_S3_URI` default to `s3://s3-bucket-time-7/code/recommender_ml.py`
-- Update `ContainerEntrypoint` to reference `recommender_ml.py`
-- Maintain backward-compatible `lambda_handler` interface
-
 ## Data Models
 
 ### Input Schema (pipe-separated CSV)
@@ -391,7 +361,7 @@ doc_to_idx: dict[str, int]   # consultedDocument → column index
 
 *For any* DataFrame with valid columns, after calling `prepare`: (a) `billing`, `inquiry`, and `post_report_view` columns SHALL contain only values 0 or 1; (b) `httpTime` and `httpStatus` SHALL contain no NaN values; (c) all string columns (reportName, TYPE_REPORT, FEATURENAME, FEATURE_TYPE, customerDocument, consultedDocument) SHALL contain no leading/trailing whitespace or quotation marks.
 
-**Validates: Requirements 1.3, 1.4, 15.4**
+**Validates: Requirements 1.3, 1.4, 13.4**
 
 ### Property 3: Delta days temporal computation
 
@@ -415,7 +385,7 @@ doc_to_idx: dict[str, int]   # consultedDocument → column index
 
 *For any* sparse matrix of shape (m, n) and requested `n_components` value, `train_svd` SHALL produce `user_factors` of shape `(m, actual_components)` and `item_factors` of shape `(n, actual_components)` where `actual_components = min(n_components, m - 1, n - 1)`, without raising an error.
 
-**Validates: Requirements 3.1, 3.2, 3.3, 15.1**
+**Validates: Requirements 3.1, 3.2, 3.3, 13.1**
 
 ### Property 7: SVD training reproducibility
 
@@ -427,13 +397,13 @@ doc_to_idx: dict[str, int]   # consultedDocument → column index
 
 *For any* interaction matrix and trained SVD model, the `evaluate_model` function SHALL compute RMSE exclusively over positions where the original matrix has non-zero values, and SHALL return 0.0 if no non-zero entries exist in the evaluation sample.
 
-**Validates: Requirements 4.1, 4.2, 4.4, 15.3**
+**Validates: Requirements 4.1, 4.2, 4.4, 13.3**
 
 ### Property 9: MF score computation (known pairs = dot product, unknown = 0.0)
 
 *For any* customer-document pair: if both identifiers exist in the index mappings, the raw MF score SHALL equal the dot product of `user_factors[cust_idx]` and `item_factors[doc_idx]`; if either identifier is missing from the mappings, the MF score SHALL be 0.0.
 
-**Validates: Requirements 5.1, 5.2, 15.2**
+**Validates: Requirements 5.1, 5.2, 13.2**
 
 ### Property 10: MF score normalization bounds
 
@@ -471,24 +441,17 @@ doc_to_idx: dict[str, int]   # consultedDocument → column index
 
 **Validates: Requirements 7.5**
 
-### Property 16: Lambda trigger skips non-CSV files
-
-*For any* S3 event where the object key does not end with `.csv`, the Lambda trigger SHALL return a response with body "skipped" without starting a Processing Job.
-
-**Validates: Requirements 10.2**
-
 ## Error Handling
 
 | Scenario | Handling Strategy | Requirement |
 |----------|-------------------|-------------|
 | No CSV files in input directory | Raise `FileNotFoundError` with descriptive message including the directory path | 1.2 |
-| N_COMPONENTS > min(m, n) - 1 | Silently clamp to max allowable value and proceed | 3.2, 15.1 |
-| Unknown customer/document in MF score computation | Return 0.0 for the pair without exception | 5.2, 15.2 |
-| No non-zero entries in evaluation sample | Return RMSE = 0.0 | 4.4, 15.3 |
-| Non-numeric `httpTime` values | Coerce to numeric with `errors="coerce"`, fill NaN with 0 | 1.3, 15.4 |
+| N_COMPONENTS > min(m, n) - 1 | Silently clamp to max allowable value and proceed | 3.2, 13.1 |
+| Unknown customer/document in MF score computation | Return 0.0 for the pair without exception | 5.2, 13.2 |
+| No non-zero entries in evaluation sample | Return RMSE = 0.0 | 4.4, 13.3 |
+| Non-numeric `httpTime` values | Coerce to numeric with `errors="coerce"`, fill NaN with 0 | 1.3, 13.4 |
 | Non-numeric `httpStatus` values | Coerce to numeric with `errors="coerce"`, fill NaN with 0 | 1.3 |
 | MF score missing after left join | Fill NaN with 0.0 before hybrid calculation | 6.4 |
-| File extension not .csv (Lambda trigger) | Skip processing, return 200 with "skipped" body | 10.2 |
 
 **Design principle**: The pipeline favors degraded output over failure. Edge cases in data quality (missing values, unknown identifiers, small matrices) are handled gracefully with fallback defaults, allowing the pipeline to always produce valid JSON output.
 
@@ -523,14 +486,11 @@ This feature is well-suited for property-based testing because:
 | `test_output_json_has_required_top_level_keys` | Req 8.2 |
 | `test_model_metrics_has_required_keys` | Req 8.3, 4.3 |
 | `test_stats_has_required_keys` | Req 8.4 |
-| `test_model_version_is_2_0_hybrid_svd` | Req 14.1 |
-| `test_model_params_includes_all_fields` | Req 14.2 |
-| `test_generated_at_is_valid_iso_format` | Req 14.3 |
+| `test_model_version_is_2_0_hybrid_svd` | Req 12.1 |
+| `test_model_params_includes_all_fields` | Req 12.2 |
+| `test_generated_at_is_valid_iso_format` | Req 12.3 |
 | `test_output_dimensions_have_5_keys` | Req 7.1 |
-| `test_default_config_values` | Req 12.1-12.5 |
-| `test_lambda_trigger_starts_job_on_csv` | Req 10.1 |
-| `test_lambda_trigger_passes_ml_params` | Req 10.5 |
-| `test_run_job_references_recommender_ml` | Req 11.1-11.3 |
+| `test_default_config_values` | Req 10.1-10.5 |
 
 ### Integration Tests
 
@@ -538,9 +498,7 @@ This feature is well-suited for property-based testing because:
 |------|-----------|
 | `test_output_json_written_to_correct_path` | Req 8.1 |
 | `test_json_encoding_utf8_no_ascii` | Req 8.5 |
-| `test_logging_pipeline_stages` | Req 13.1-13.5 |
-| `test_lambda_handler_backward_compatible` | Req 11.4 |
-| `test_lambda_passes_s3_uri_as_input` | Req 10.3 |
+| `test_logging_pipeline_stages` | Req 11.1-11.5 |
 
 ### Test Infrastructure Setup
 
@@ -558,7 +516,5 @@ tests/
 ├── test_matrix.py           # Properties 4-5 + unit tests for Req 2
 ├── test_svd.py              # Properties 6-8 + unit tests for Req 3-4
 ├── test_scoring.py          # Properties 9-12 + unit tests for Req 5-6
-├── test_recommendations.py  # Properties 13-15 + unit tests for Req 7-8
-├── test_lambda_trigger.py   # Property 16 + unit tests for Req 10
-└── test_run_job.py          # Unit tests for Req 11
+└── test_recommendations.py  # Properties 13-15 + unit tests for Req 7-8
 ```
