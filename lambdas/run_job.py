@@ -16,7 +16,7 @@ INPUT_PREFIX    = os.environ.get("INPUT_PREFIX",  "input/")
 OUTPUT_BUCKET   = os.environ.get("OUTPUT_BUCKET", "s3-bucket-time-7")
 OUTPUT_PREFIX   = os.environ.get("OUTPUT_PREFIX", "output/warmup/")
 CODE_S3_URI     = os.environ.get("CODE_S3_URI",
-                    "s3://s3-bucket-time-7/code/recommender.py")
+                    "s3://s3-bucket-time-7/code/recommender_ml.py")
 
 # Imagem SKLearn gerenciada pela AWS (Python 3.10)
 IMAGE_URI = (
@@ -30,6 +30,10 @@ MODEL_PARAMS = {
     "BETA":          "0.40",
     "GAMMA":         "0.25",
     "LAMBDA_DECAY":  "0.15",
+    "W_MF":          "0.45",
+    "W_BIZ":         "0.55",
+    "N_COMPONENTS":  "50",
+    "N_ITER":        "15",
     "TOP_N_REPORTS": "20",
     "TOP_N_FEATURES":"30",
     "TOP_N_CUSTOMERS":"500",
@@ -62,7 +66,7 @@ def start_job(input_s3_uri: str | None = None) -> str:
         # Imagem e código
         AppSpecification={
             "ImageUri": IMAGE_URI,
-            "ContainerEntrypoint": ["python3", "/opt/ml/processing/code/recommender.py"],
+            "ContainerEntrypoint": ["python3", "/opt/ml/processing/code/recommender_ml.py"],
         },
 
         # Canal de entrada: CSV do S3

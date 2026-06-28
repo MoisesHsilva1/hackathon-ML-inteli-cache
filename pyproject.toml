@@ -1,0 +1,13 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "property: property-based tests using Hypothesis",
+    "unit: example-based unit tests",
+    "integration: integration tests spanning multiple modules",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.hypothesis]
+max_examples = 100

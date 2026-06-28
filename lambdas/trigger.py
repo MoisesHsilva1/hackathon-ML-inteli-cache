@@ -41,7 +41,7 @@ def lambda_handler(event, context):
         }},
         AppSpecification={
             "ImageUri": IMAGE_URI,
-            "ContainerEntrypoint": ["python3", "/opt/ml/processing/code/recommender.py"],
+            "ContainerEntrypoint": ["python3", "/opt/ml/processing/code/recommender_ml.py"],
         },
         ProcessingInputs=[
             {"InputName": "input-data", "S3Input": {
@@ -59,7 +59,8 @@ def lambda_handler(event, context):
         }}]},
         Environment={
             "ALPHA": "0.35", "BETA": "0.40", "GAMMA": "0.25",
-            "LAMBDA_DECAY": "0.15", "CSV_SEP": "|",
+            "LAMBDA_DECAY": "0.15", "W_MF": "0.45", "W_BIZ": "0.55",
+            "N_COMPONENTS": "50", "N_ITER": "15", "CSV_SEP": "|",
         },
         RoleArn=ROLE_ARN,
         StoppingCondition={"MaxRuntimeInSeconds": 3600},
