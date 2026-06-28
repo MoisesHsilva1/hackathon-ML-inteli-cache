@@ -1223,12 +1223,16 @@
         </h1>
         <p class="hero-sub">
           Um modelo hybrid-SVD analisa
-          <strong id="hero-records">724.788</strong> consultas históricas e
+          <strong id="hero-records">1 milhão</strong> consultas históricas e
           pré-aquece o cache com o que vai ser pedido —
           <strong>antes</strong> da falha acontecer. Disponibilidade efetiva
           sobe para <strong>99,70%</strong> e o custo do risco cai
           <strong>79,8%</strong>.
         </p>
+        <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+          <img src="assets/qr-code-website.png" alt="QR Code — Dashboard" style="width: 120px; height: 120px; border-radius: 12px; background: #fff; padding: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);" />
+          <span style="font-size: 0.78rem; color: rgba(255,255,255,0.6); max-width: 18ch; line-height: 1.4;">Escaneie para acessar o dashboard</span>
+        </div>
       </div>
     </header>
 
@@ -1241,10 +1245,10 @@
       <div class="kpi-row">
         <div class="kpi-card">
           <div class="kpi-icon purple">📊</div>
-          <div class="kpi-value tnum" id="kpi-records">724.8K</div>
+          <div class="kpi-value tnum" id="kpi-records">1.45M</div>
           <div class="kpi-label">Registros Processados</div>
           <div class="kpi-change" id="kpi-records-sub">
-            21.5K customers únicos
+            23.7K customers únicos
           </div>
         </div>
         <div class="kpi-card">
@@ -1263,9 +1267,9 @@
         </div>
         <div class="kpi-card">
           <div class="kpi-icon green">🧠</div>
-          <div class="kpi-value tnum" id="kpi-variance">22.83%</div>
+          <div class="kpi-value tnum" id="kpi-variance">22.29%</div>
           <div class="kpi-label">Variância Explicada SVD</div>
-          <div class="kpi-change" id="kpi-variance-sub">RMSE: 0.9475</div>
+          <div class="kpi-change" id="kpi-variance-sub">RMSE: 1.1849</div>
         </div>
       </div>
 
@@ -1324,11 +1328,11 @@
         <h2><span class="h-ico">🧠</span> Modelo SVD</h2>
         <div class="metric">
           <span class="metric-label">Variância Explicada</span
-          ><span class="metric-value good" id="explained-var">22.83%</span>
+          ><span class="metric-value good" id="explained-var">22.29%</span>
         </div>
         <div class="metric">
           <span class="metric-label">RMSE Reconstrução</span
-          ><span class="metric-value bad" id="rmse">0.9475</span>
+          ><span class="metric-value bad" id="rmse">1.1849</span>
         </div>
         <div class="metric">
           <span class="metric-label">Dimensões Latentes</span
@@ -1336,19 +1340,19 @@
         </div>
         <div class="metric">
           <span class="metric-label">Forma da Matriz</span
-          ><span class="metric-value" id="matrix-shape">21497 × 276154</span>
+          ><span class="metric-value" id="matrix-shape">23736 × 383076</span>
         </div>
         <div class="metric">
           <span class="metric-label">Densidade</span
-          ><span class="metric-value" id="density">0.005%</span>
+          ><span class="metric-value" id="density">0.0046%</span>
         </div>
         <div class="metric">
           <span class="metric-label">Interações Não-Zero</span
-          ><span class="metric-value" id="n-interactions">297.8K</span>
+          ><span class="metric-value" id="n-interactions">420.2K</span>
         </div>
         <div class="metric">
           <span class="metric-label">Tempo de Treinamento</span
-          ><span class="metric-value good" id="training-time">11.2s</span>
+          ><span class="metric-value good" id="training-time">16.1s</span>
         </div>
       </section>
 
@@ -1436,19 +1440,7 @@
                 style="width: 100%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.426</span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label" title="RELATORIO_AVANCADO_PJ"
-              >AVANCADO PJ</span
-            >
-            <div class="bar-track">
-              <div
-                class="bar-fill"
-                style="width: 95%; background: var(--grad-brand)"
-              ></div>
-            </div>
-            <span class="bar-value">0.408</span>
+            <span class="bar-value">0.427</span>
           </div>
           <div class="bar-row">
             <span class="bar-label" title="RELATORIO_INTERMEDIARIO_TOP_SCORE_PJ"
@@ -1457,10 +1449,22 @@
             <div class="bar-track">
               <div
                 class="bar-fill"
-                style="width: 95%; background: var(--grad-brand)"
+                style="width: 96%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.408</span>
+            <span class="bar-value">0.409</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PJ"
+              >AVANCADO PJ</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 96%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.409</span>
           </div>
           <div class="bar-row">
             <span class="bar-label" title="RELATORIO_AVANCADO_PJ_PME"
@@ -1472,19 +1476,7 @@
                 style="width: 94%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.401</span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label" title="RELATORIO_BASICO_PJ_PME"
-              >BASICO PJ PME</span
-            >
-            <div class="bar-track">
-              <div
-                class="bar-fill"
-                style="width: 91%; background: var(--grad-brand)"
-              ></div>
-            </div>
-            <span class="bar-value">0.392</span>
+            <span class="bar-value">0.402</span>
           </div>
           <div class="bar-row">
             <span class="bar-label" title="RELATORIO_AVANCADO_PJ_PME_ANALITICO"
@@ -1493,22 +1485,10 @@
             <div class="bar-track">
               <div
                 class="bar-fill"
-                style="width: 91%; background: var(--grad-brand)"
+                style="width: 94%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.391</span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label" title="RELATORIO_AVANCADO_PF_NOVO_FRONT"
-              >AVANCADO PF NOVO FRONT</span
-            >
-            <div class="bar-track">
-              <div
-                class="bar-fill"
-                style="width: 91%; background: var(--grad-brand)"
-              ></div>
-            </div>
-            <span class="bar-value">0.391</span>
+            <span class="bar-value">0.401</span>
           </div>
           <div class="bar-row">
             <span class="bar-label" title="RELATORIO_AVANCADO_PJ_ANALITICO"
@@ -1517,10 +1497,34 @@
             <div class="bar-track">
               <div
                 class="bar-fill"
-                style="width: 91%; background: var(--grad-brand)"
+                style="width: 92%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.391</span>
+            <span class="bar-value">0.393</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_BASICO_PJ_PME"
+              >BASICO PJ PME</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 92%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.392</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PF_NOVO_FRONT"
+              >AVANCADO PF NOVO FRONT</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 92%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.392</span>
           </div>
           <div class="bar-row">
             <span class="bar-label" title="RELATORIO_INTERMEDIARIO_PJ"
@@ -1529,10 +1533,10 @@
             <div class="bar-track">
               <div
                 class="bar-fill"
-                style="width: 91%; background: var(--grad-brand)"
+                style="width: 92%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.390</span>
+            <span class="bar-value">0.391</span>
           </div>
           <div class="bar-row">
             <span
@@ -1546,7 +1550,7 @@
                 style="width: 91%; background: var(--grad-brand)"
               ></div>
             </div>
-            <span class="bar-value">0.388</span>
+            <span class="bar-value">0.389</span>
           </div>
         </div>
       </section>
@@ -1619,14 +1623,14 @@
                 class="legend-dot"
                 style="background: var(--color-navy)"
               ></span
-              >PJ — 72,7% (524.954)
+              >PJ — 72,7% (1.050.848)
             </div>
             <div class="legend-item">
               <span
                 class="legend-dot"
                 style="background: var(--color-magenta)"
               ></span
-              >PF — 27,3% (197.428)
+              >PF — 27,3% (393.908)
             </div>
           </div>
         </div>
@@ -1816,15 +1820,15 @@
         <h2><span class="h-ico">📊</span> Dataset</h2>
         <div class="metric">
           <span class="metric-label">Total de Registros</span
-          ><span class="metric-value tnum" id="total-records">724.8K</span>
+          ><span class="metric-value tnum" id="total-records">1.45M</span>
         </div>
         <div class="metric">
           <span class="metric-label">Customers Únicos</span
-          ><span class="metric-value tnum" id="unique-customers">21.5K</span>
+          ><span class="metric-value tnum" id="unique-customers">23.7K</span>
         </div>
         <div class="metric">
           <span class="metric-label">Docs Consultados</span
-          ><span class="metric-value tnum" id="unique-consulted">276.2K</span>
+          ><span class="metric-value tnum" id="unique-consulted">383.1K</span>
         </div>
         <div class="metric">
           <span class="metric-label">Relatórios Únicos</span
@@ -1894,36 +1898,36 @@
                   <td>1</td>
                   <td>AVANCADO TOP SCORE PJ</td>
                   <td><span class="pill pill-pj">PJ</span></td>
-                  <td>101.6K</td>
-                  <td class="score-cell">0.4258</td>
+                  <td>203.6K</td>
+                  <td class="score-cell">0.4265</td>
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>AVANCADO PJ</td>
+                  <td>INTERMEDIARIO TOP SCORE PJ</td>
                   <td><span class="pill pill-pj">PJ</span></td>
-                  <td>73.3K</td>
-                  <td class="score-cell">0.4083</td>
+                  <td>137.0K</td>
+                  <td class="score-cell">0.4090</td>
                 </tr>
                 <tr>
                   <td>3</td>
-                  <td>INTERMEDIARIO TOP SCORE PJ</td>
+                  <td>AVANCADO PJ</td>
                   <td><span class="pill pill-pj">PJ</span></td>
-                  <td>68.4K</td>
-                  <td class="score-cell">0.4082</td>
+                  <td>145.9K</td>
+                  <td class="score-cell">0.4089</td>
                 </tr>
                 <tr>
                   <td>4</td>
                   <td>AVANCADO PJ PME</td>
                   <td><span class="pill pill-pj">PJ</span></td>
-                  <td>55.4K</td>
-                  <td class="score-cell">0.4014</td>
+                  <td>110.8K</td>
+                  <td class="score-cell">0.4022</td>
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td>BASICO PJ PME</td>
+                  <td>AVANCADO PJ PME ANALITICO</td>
                   <td><span class="pill pill-pj">PJ</span></td>
-                  <td>30.1K</td>
-                  <td class="score-cell">0.3916</td>
+                  <td>1.1K</td>
+                  <td class="score-cell">0.4012</td>
                 </tr>
               </tbody>
             </table>
@@ -1953,31 +1957,31 @@
                 </tr>
                 <tr>
                   <td>2</td>
+                  <td>PARTICIPACAO SOCIETARIA</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6116</td>
+                </tr>
+                <tr>
+                  <td>3</td>
                   <td>QSA AVANCADO</td>
                   <td>O</td>
                   <td>1</td>
                   <td class="score-cell">0.6070</td>
                 </tr>
                 <tr>
-                  <td>3</td>
+                  <td>4</td>
+                  <td>SCORE POSITIVO</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6070</td>
+                </tr>
+                <tr>
+                  <td>5</td>
                   <td>FATURAMENTO RECEBIVEIS</td>
                   <td>O</td>
                   <td>1</td>
                   <td class="score-cell">0.6064</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>PARTICIPACOES</td>
-                  <td>O</td>
-                  <td>1</td>
-                  <td class="score-cell">0.6032</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>MAIS ANOTACOES 1000</td>
-                  <td>O</td>
-                  <td>1</td>
-                  <td class="score-cell">0.6029</td>
                 </tr>
               </tbody>
             </table>
@@ -1999,33 +2003,33 @@
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td class="mono">47122133457579</td>
-                  <td>13</td>
-                  <td class="score-cell">0.5972</td>
+                  <td class="mono">40290240944574</td>
+                  <td>1</td>
+                  <td class="score-cell">0.5977</td>
                 </tr>
                 <tr>
                   <td>2</td>
+                  <td class="mono">47122133457579</td>
+                  <td>19</td>
+                  <td class="score-cell">0.5972</td>
+                </tr>
+                <tr>
+                  <td>3</td>
                   <td class="mono">70647899284766</td>
                   <td>1</td>
                   <td class="score-cell">0.5970</td>
                 </tr>
                 <tr>
-                  <td>3</td>
-                  <td class="mono">98004630850411</td>
-                  <td>8</td>
-                  <td class="score-cell">0.5928</td>
-                </tr>
-                <tr>
                   <td>4</td>
-                  <td class="mono">14618434491831</td>
+                  <td class="mono">68812861108136</td>
                   <td>1</td>
-                  <td class="score-cell">0.5920</td>
+                  <td class="score-cell">0.5950</td>
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td class="mono">58357357107732</td>
-                  <td>2</td>
-                  <td class="score-cell">0.5916</td>
+                  <td class="mono">98004630850411</td>
+                  <td>17</td>
+                  <td class="score-cell">0.5928</td>
                 </tr>
               </tbody>
             </table>
@@ -2049,56 +2053,56 @@
                   <td>1</td>
                   <td
                     class="mono"
+                    title="04be777a20a6c3822fbf88874e4cd06bb3f64efa"
+                  >
+                    04be777a20a6c382…
+                  </td>
+                  <td>1</td>
+                  <td class="score-cell">0.6116</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td
+                    class="mono"
                     title="b184666b447a66fb57301bbecab26f1db8b72281"
                   >
                     b184666b447a66fb…
                   </td>
-                  <td>1</td>
+                  <td>2</td>
                   <td class="score-cell">0.6064</td>
                 </tr>
                 <tr>
-                  <td>2</td>
+                  <td>3</td>
                   <td
                     class="mono"
                     title="c845f4f0f1fedea9e52e41d096f32746019fb9dd"
                   >
                     c845f4f0f1fedea9…
                   </td>
-                  <td>1</td>
+                  <td>3</td>
                   <td class="score-cell">0.6032</td>
                 </tr>
                 <tr>
-                  <td>3</td>
+                  <td>4</td>
                   <td
                     class="mono"
                     title="2971a29cd2e6379099af827b08ed482da2275106"
                   >
                     2971a29cd2e63790…
                   </td>
-                  <td>1</td>
+                  <td>3</td>
                   <td class="score-cell">0.6019</td>
                 </tr>
                 <tr>
-                  <td>4</td>
+                  <td>5</td>
                   <td
                     class="mono"
                     title="5fcbf1add0869ee9e830eb3b6b5a0ddb440189d4"
                   >
                     5fcbf1add0869ee9…
                   </td>
-                  <td>1</td>
+                  <td>2</td>
                   <td class="score-cell">0.6005</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td
-                    class="mono"
-                    title="59a9b606bbd95946a7bdb1e9b060c2ec8f6c1b92"
-                  >
-                    59a9b606bbd95946…
-                  </td>
-                  <td>5</td>
-                  <td class="score-cell">0.6001</td>
                 </tr>
               </tbody>
             </table>
@@ -2131,8 +2135,8 @@
                 >
                   b4b3f7ab82d4bb59…
                 </td>
-                <td>56.2K</td>
-                <td class="score-cell">0.6545</td>
+                <td>112.5K</td>
+                <td class="score-cell">0.6553</td>
               </tr>
               <tr>
                 <td>2</td>
@@ -2143,8 +2147,8 @@
                 >
                   6ce4f13cebdd836e…
                 </td>
-                <td>39.7K</td>
-                <td class="score-cell">0.6359</td>
+                <td>78.7K</td>
+                <td class="score-cell">0.6365</td>
               </tr>
               <tr>
                 <td>3</td>
@@ -2155,8 +2159,8 @@
                 >
                   f2e86290669c003e…
                 </td>
-                <td>9.4K</td>
-                <td class="score-cell">0.5664</td>
+                <td>18.6K</td>
+                <td class="score-cell">0.5711</td>
               </tr>
               <tr>
                 <td>4</td>
@@ -2167,8 +2171,8 @@
                 >
                   495eb099ee0b7719…
                 </td>
-                <td>59</td>
-                <td class="score-cell">0.4888</td>
+                <td>108</td>
+                <td class="score-cell">0.5018</td>
               </tr>
               <tr>
                 <td>5</td>
@@ -2179,8 +2183,8 @@
                 >
                   d1e4dab974a80624…
                 </td>
-                <td>46</td>
-                <td class="score-cell">0.4574</td>
+                <td>84</td>
+                <td class="score-cell">0.4700</td>
               </tr>
             </tbody>
           </table>
@@ -2371,7 +2375,7 @@
         <div class="eyebrow">Escala de produção</div>
         <h2>Arquitetura To Be — pronta para 200&nbsp;GB+</h2>
         <p>
-          O MVP processa ~50&nbsp;MB de CSV em um único job de 11,2&nbsp;s. A
+          O MVP processa ~100&nbsp;MB de CSV em um único job de 16,1&nbsp;s. A
           200&nbsp;GB (bilhões de interações, histórico completo e múltiplas
           APIs) o single-node não escala — a arquitetura evolui para ingestão
           particionada, processamento distribuído e serving híbrido.
@@ -2389,7 +2393,7 @@
         <div class="tobe-metrics">
           <div class="tobe-metric">
             <div class="tm-val">200 GB+</div>
-            <div class="tm-lbl">volume de entrada (vs ~50 MB no MVP)</div>
+            <div class="tm-lbl">volume de entrada (vs ~100 MB no MVP)</div>
           </div>
           <div class="tobe-metric">
             <div class="tm-val">Parquet</div>
@@ -2444,7 +2448,7 @@
             </div>
           </div>
           <div class="tobe-layer">
-            <div class="tobe-head">
+            <div class="tobe-head"
               <span class="tobe-num">4</span
               ><span class="tobe-title"
                 >Treino &amp; versionamento<small
@@ -2518,7 +2522,7 @@
             <tbody>
               <tr>
                 <td>Volume de entrada</td>
-                <td class="cell-warn">~50&nbsp;MB · 724k linhas</td>
+                <td class="cell-warn">~100&nbsp;MB · 1.45M linhas</td>
                 <td class="cell-ok">200&nbsp;GB+ · bilhões de linhas</td>
               </tr>
               <tr>
@@ -2533,7 +2537,7 @@
               </tr>
               <tr>
                 <td>Fatoração</td>
-                <td class="cell-warn">scikit TruncatedSVD (11,2&nbsp;s)</td>
+                <td class="cell-warn">scikit TruncatedSVD (16,1&nbsp;s)</td>
                 <td class="cell-ok">Spark ALS distribuído</td>
               </tr>
               <tr>
@@ -2565,7 +2569,7 @@
     <footer class="dashboard-footer">
       <div class="foot-logo">Cache Warmup Recommender</div>
       <span id="timestamp"
-        >Atualizado: 28/06/2026 12:23:44 | v2.0-hybrid-svd</span
+        >Atualizado: 28/06/2026 16:05:00 | v2.0-hybrid-svd</span
       >
       <span>·</span>
       <span
