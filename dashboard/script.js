@@ -7,7 +7,7 @@
         MAX_POLL_MS: 120000,
         MAX_CONSECUTIVE_FAILURES: 3,
         DATA_SOURCES: [
-            'https://s3-bucket-time-7.s3.amazonaws.com/output/warmup/warmup_recommendations.json',
+            '__S3_DATA_URL__',
             'data.json',
             '../data/sample_output.json'
         ]
@@ -22,6 +22,7 @@
 
     async function fetchData() {
         for (const src of CONFIG.DATA_SOURCES) {
+            if (!src || src.includes('__')) continue;
             try {
                 const resp = await fetch(src);
                 if (resp.ok) return await resp.json();
