@@ -1151,6 +1151,9 @@
           transform: rotate(90deg);
           justify-self: center;
         }
+        .params-grid {
+          grid-template-columns: 1fr !important;
+        }
         .bar-label {
           flex-basis: 30%;
           font-size: 0.65rem;
@@ -1213,8 +1216,8 @@
             </div>
           </div>
           <div class="badges">
-            <span class="badge">Hackathon 2026</span>
-            <span class="badge">SageMaker + ElastiCache</span>
+            <span class="badge">Hackathon Serasa 2026</span>
+            <span class="badge">SageMaker</span>
           </div>
         </div>
         <div class="hero-eyebrow">Cache de Fallback Inteligente</div>
@@ -1263,7 +1266,6 @@
           <div class="kpi-icon blue">⚡</div>
           <div class="kpi-value tnum" id="kpi-hit-rate">95%</div>
           <div class="kpi-label">Cobertura na Falha</div>
-          <div class="kpi-change">~800ms → ~50ms latência</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon green">🧠</div>
@@ -1284,7 +1286,7 @@
         </p>
       </div>
 
-      <section class="card span-2">
+      <section class="card">
         <h2>
           <span class="h-ico">📈</span> Impacto do Warmup
           <span class="card-sub">por queda de API</span>
@@ -1302,29 +1304,9 @@
             <small class="metric-label">servidas na falha</small>
           </div>
         </div>
-        <hr class="comparison-divider" />
-        <div class="comparison">
-          <div class="comparison-col">
-            <h3>Latência Sem Cache</h3>
-            <div class="comparison-value warn">~800ms</div>
-            <small class="metric-label">P95</small>
-          </div>
-          <div class="comparison-arrow">→</div>
-          <div class="comparison-col">
-            <h3>Latência Com Cache</h3>
-            <div class="comparison-value good">~50ms</div>
-            <small class="metric-label">P95</small>
-          </div>
-        </div>
-        <hr class="comparison-divider" />
-        <div class="metric">
-          <span class="metric-label"
-            >Cobertura estimada do volume (top relatórios)</span
-          ><span class="metric-value good" id="coverage">9.3%</span>
-        </div>
       </section>
 
-      <section class="card">
+      <section class="card span-2">
         <h2><span class="h-ico">🧠</span> Modelo SVD</h2>
         <div class="metric">
           <span class="metric-label">Variância Explicada</span
@@ -1396,7 +1378,7 @@
           </div>
           <div class="scenario best">
             <span class="badge-best">Recomendado</span>
-            <span class="scenario-tag t-green">Cache inteligente + ML</span>
+            <span class="scenario-tag t-green">Cache inteligente de fallback + ML</span>
             <span class="scenario-name">Preditivo — aquece o que virá</span>
             <span class="scenario-cost good">USD 12.679</span>
             <div class="scenario-rows">
@@ -2191,105 +2173,63 @@
         </div>
       </section>
 
-      <!-- ── Parâmetros + roadmap ───────────────────────────────────── -->
-      <section class="card">
+      <!-- ── Parâmetros ───────────────────────────────────────────── -->
+      <section class="card full-width">
         <h2><span class="h-ico">⚙️</span> Parâmetros do Modelo</h2>
-        <div class="formula-block">
-          <div class="formula-label">Fórmula central</div>
-          <div class="formula-main" id="formula">
-            score_final = w_mf · score_mf + w_biz · (α·V_norm + β·exp(-λ·Δt) +
-            γ·W_biz)
+        <div class="params-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); align-items: start;">
+          <div>
+            <div class="formula-block">
+              <div class="formula-label">Fórmula central</div>
+              <div class="formula-main" id="formula">
+                score_final = w_mf · score_mf + w_biz · (α·V_norm + β·exp(-λ·Δt) +
+                γ·W_biz)
+              </div>
+            </div>
+            <div class="formula-block" style="margin-top:var(--spacing-md)">
+              <div class="formula-label">W_biz (peso de negócio)</div>
+              <div class="formula-main">W = 0.30·billing + 0.25·inquiry + 0.25·post_view + 0.20·latency_norm</div>
+            </div>
           </div>
-        </div>
-        <div class="metric">
-          <span class="metric-label">α — Volume</span
-          ><span class="metric-value" id="alpha">0.35</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">β — Recência</span
-          ><span class="metric-value" id="beta">0.4</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">γ — Negócio</span
-          ><span class="metric-value" id="gamma">0.25</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">λ — Decaimento</span
-          ><span class="metric-value" id="lambda">0.15</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">W_MF — Peso SVD</span
-          ><span class="metric-value" id="w-mf">0.45</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">W_BIZ — Peso Negócio</span
-          ><span class="metric-value" id="w-biz">0.55</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">SVD Components</span
-          ><span class="metric-value">50</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">SVD Iterações</span
-          ><span class="metric-value">15</span>
-        </div>
-        <div class="formula-block" style="margin-top:var(--spacing-md)">
-          <div class="formula-label">W_biz (peso de negócio)</div>
-          <div class="formula-main">W = 0.30·billing + 0.25·inquiry + 0.25·post_view + 0.20·latency_norm</div>
-        </div>
-      </section>
-
-      <section class="card span-2">
-        <h2><span class="h-ico">🚀</span> Roadmap — Batch vs Real-Time</h2>
-        <div class="table-scroll">
-          <table class="evolution-table">
-            <thead>
-              <tr>
-                <th>Cenário</th>
-                <th>Batch (Atual)</th>
-                <th>Endpoint (Futuro)</th>
-                <th>Trigger</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Predição sob demanda</td>
-                <td class="cell-no">❌ Não suporta</td>
-                <td class="cell-ok">✅ Score via API</td>
-                <td>Apps precisarem score real-time</td>
-              </tr>
-              <tr>
-                <td>Volume &gt; 10M registros</td>
-                <td class="cell-warn">⚠️ Job lento (~30min+)</td>
-                <td class="cell-ok">✅ Inferência rápida</td>
-                <td>Batch ultrapassar SLA</td>
-              </tr>
-              <tr>
-                <td>Model versioning</td>
-                <td class="cell-no">❌ Re-treina do zero</td>
-                <td class="cell-ok">✅ Registry + A/B test</td>
-                <td>Precisar rollback</td>
-              </tr>
-              <tr>
-                <td>Multi-tenant</td>
-                <td class="cell-no">❌ Batch único</td>
-                <td class="cell-ok">✅ Auto-scaling</td>
-                <td>Múltiplos consumers</td>
-              </tr>
-              <tr>
-                <td>Custo (MVP)</td>
-                <td class="cell-ok">✅ ~$0.50/exec</td>
-                <td class="cell-warn">⚠️ ~$50/mês</td>
-                <td>ROI justificar</td>
-              </tr>
-            </tbody>
-          </table>
+          <div>
+            <div class="metric">
+              <span class="metric-label">α — Volume</span
+              ><span class="metric-value" id="alpha">0.35</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">β — Recência</span
+              ><span class="metric-value" id="beta">0.4</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">γ — Negócio</span
+              ><span class="metric-value" id="gamma">0.25</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">λ — Decaimento</span
+              ><span class="metric-value" id="lambda">0.15</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">W_MF — Peso SVD</span
+              ><span class="metric-value" id="w-mf">0.45</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">W_BIZ — Peso Negócio</span
+              ><span class="metric-value" id="w-biz">0.55</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">SVD Components</span
+              ><span class="metric-value">50</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">SVD Iterações</span
+              ><span class="metric-value">15</span>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- ── Análise estratégica — outros produtos ──────────────────── -->
       <div class="section-head">
-        <div class="eyebrow">Visão de produto</div>
+        <div class="eyebrow">Visão Estratégica</div>
         <h2>Além do cache: o que o motor oferece a outros produtos</h2>
         <p>
           O mesmo engine — filtragem colaborativa (SVD) + heurísticas de negócio
@@ -2393,7 +2333,7 @@
         <div class="tobe-metrics">
           <div class="tobe-metric">
             <div class="tm-val">200 GB+</div>
-            <div class="tm-lbl">volume de entrada (vs ~100 MB no MVP)</div>
+            <div class="tm-lbl">volume de entrada (vs ~500 MB no MVP)</div>
           </div>
           <div class="tobe-metric">
             <div class="tm-val">Parquet</div>
@@ -2435,21 +2375,9 @@
               ><span class="chip blue">Athena</span>
             </div>
           </div>
-          <div class="tobe-layer">
-            <div class="tobe-head">
-              <span class="tobe-num">3</span
-              ><span class="tobe-title"
-                >Feature Store<small>online + offline</small></span
-              >
-            </div>
-            <div class="tobe-chips">
-              <span class="chip">SageMaker Feature Store</span
-              ><span class="chip">consistência treino/serving</span>
-            </div>
-          </div>
-          <div class="tobe-layer">
+                <div class="tobe-layer">
             <div class="tobe-head"
-              <span class="tobe-num">4</span
+              <span class="tobe-num">3</span
               ><span class="tobe-title"
                 >Treino &amp; versionamento<small
                   >governança de modelo</small
@@ -2462,22 +2390,10 @@
               ><span class="chip">A/B test &amp; rollback</span>
             </div>
           </div>
+
           <div class="tobe-layer">
             <div class="tobe-head">
-              <span class="tobe-num">5</span
-              ><span class="tobe-title"
-                >Serving híbrido<small>real-time + batch</small></span
-              >
-            </div>
-            <div class="tobe-chips">
-              <span class="chip warm">SageMaker Endpoint (score on-demand)</span
-              ><span class="chip warm">Batch Transform</span
-              ><span class="chip warm">Lambda → ElastiCache warmup</span>
-            </div>
-          </div>
-          <div class="tobe-layer">
-            <div class="tobe-head">
-              <span class="tobe-num">6</span
+              <span class="tobe-num">4</span
               ><span class="tobe-title"
                 >Orquestração &amp; observabilidade<small
                   >operação gerenciada</small
@@ -2532,22 +2448,17 @@
               </tr>
               <tr>
                 <td>Processamento</td>
-                <td class="cell-warn">SageMaker Processing single-node</td>
+                <td class="cell-warn">SageMaker Processing Job</td>
                 <td class="cell-ok">EMR / Glue — Spark distribuído</td>
               </tr>
               <tr>
                 <td>Fatoração</td>
-                <td class="cell-warn">scikit TruncatedSVD (16,1&nbsp;s)</td>
+                <td class="cell-warn">TruncatedSVD (Scikit) - 16,1&nbsp;s </td>
                 <td class="cell-ok">Spark ALS distribuído</td>
               </tr>
               <tr>
-                <td>Features</td>
-                <td class="cell-warn">em memória</td>
-                <td class="cell-ok">SageMaker Feature Store</td>
-              </tr>
-              <tr>
                 <td>Serving</td>
-                <td class="cell-warn">batch JSON → warmup</td>
+                <td class="cell-warn">Pipeline Serverless</td>
                 <td class="cell-ok">Endpoint real-time + batch transform</td>
               </tr>
               <tr>
@@ -2557,8 +2468,8 @@
               </tr>
               <tr>
                 <td>Observabilidade</td>
-                <td class="cell-no">logs básicos</td>
-                <td class="cell-ok">Model Monitor + CloudWatch</td>
+                <td class="cell-no">Logs básicos</td>
+                <td class="cell-ok">Datadog</td>
               </tr>
             </tbody>
           </table>
@@ -2567,14 +2478,8 @@
     </main>
 
     <footer class="dashboard-footer">
-      <div class="foot-logo">Cache Warmup Recommender</div>
-      <span id="timestamp"
-        >Atualizado: 28/06/2026 16:05:00 | v2.0-hybrid-svd</span
-      >
-      <span>·</span>
-      <span
-        >Hackathon 2026 · AWS SageMaker + ElastiCache · v2.0-hybrid-svd</span
-      >
+          <span
+        >Hackathon Serasa 2026
     </footer>
   </body>
 </html>
