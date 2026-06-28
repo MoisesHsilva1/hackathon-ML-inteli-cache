@@ -1,0 +1,2576 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cache Warmup Recommender — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --color-purple-dark: #3c1a5b;
+        --color-magenta: #e6007e;
+        --color-purple: #8b3a8e;
+        --color-blue: #0097d1;
+        --color-navy: #003b6f;
+        --color-navy-dark: #002a4e;
+        --color-gray: #b0b4b8;
+        --color-gray-light: #eef1f6;
+        --color-white: #ffffff;
+        --color-success: #10b981;
+        --color-warning: #f59e0b;
+        --color-error: #ef4444;
+
+        --page-bg: #f4f6fb;
+        --card-bg: #ffffff;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --text-light: #94a3b8;
+
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+        --spacing-2xl: 3rem;
+
+        --font-display:
+          "Sora", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-family:
+          "Sora", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+        --font-size-xs: 0.72rem;
+        --font-size-sm: 0.8rem;
+        --font-size-body: 0.875rem;
+        --font-size-md: 1rem;
+        --font-size-lg: 1.25rem;
+        --font-size-xl: 1.75rem;
+        --font-size-2xl: 2.25rem;
+        --font-size-3xl: 3rem;
+
+        --grid-gap: 1.5rem;
+        --card-radius: 18px;
+        --card-padding: 1.75rem;
+        --card-shadow:
+          0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.05);
+        --card-border: 1px solid rgba(16, 24, 40, 0.05);
+
+        --grad-brand: linear-gradient(
+          120deg,
+          var(--color-purple-dark) 0%,
+          var(--color-magenta) 100%
+        );
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-family);
+        font-size: var(--font-size-body);
+        font-weight: 400;
+        line-height: 1.6;
+        background-color: var(--page-bg);
+        color: var(--text-dark);
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-display);
+      }
+      .tnum {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+      }
+
+      /* ── Header / Hero ──────────────────────────────────────────────── */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #2a1145 0%,
+          var(--color-purple-dark) 38%,
+          var(--color-navy) 82%,
+          var(--color-navy-dark) 100%
+        );
+        color: var(--color-white);
+        padding: var(--spacing-2xl) var(--spacing-xl) 6rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        top: -40%;
+        right: -10%;
+        width: 55%;
+        height: 220%;
+        background: radial-gradient(
+          ellipse,
+          rgba(230, 0, 126, 0.28) 0%,
+          rgba(0, 151, 209, 0.1) 45%,
+          transparent 72%
+        );
+        pointer-events: none;
+      }
+      .hero-inner {
+        max-width: 1440px;
+        margin-inline: auto;
+        position: relative;
+        z-index: 1;
+      }
+      .hero-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        margin-bottom: var(--spacing-2xl);
+      }
+      .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+      .brand-dot {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--grad-brand);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 16px rgba(230, 0, 126, 0.4);
+      }
+      .brand-name {
+        font-weight: 700;
+        font-size: var(--font-size-md);
+        letter-spacing: -0.01em;
+      }
+      .brand-name span {
+        display: block;
+        font-weight: 400;
+        font-size: var(--font-size-xs);
+        color: rgba(255, 255, 255, 0.55);
+        letter-spacing: 0;
+      }
+      .badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        padding: 0.35rem 0.8rem;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(6px);
+        white-space: nowrap;
+      }
+      .badge.live {
+        background: rgba(16, 185, 129, 0.18);
+        border-color: rgba(16, 185, 129, 0.35);
+        color: #6ee7b7;
+      }
+      .badge.live::before {
+        content: "●";
+        margin-right: 6px;
+        font-size: 0.6em;
+        vertical-align: middle;
+      }
+
+      .hero-eyebrow {
+        display: inline-block;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #f9a8d4;
+        margin-bottom: var(--spacing-md);
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 4.4vw, 3.4rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.08;
+        max-width: 17ch;
+        margin-bottom: var(--spacing-md);
+      }
+      .hero h1 .accent {
+        background: linear-gradient(90deg, #f9a8d4, #c4b5fd, #67e8f9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hero-sub {
+        font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+        color: rgba(255, 255, 255, 0.74);
+        max-width: 56ch;
+        line-height: 1.7;
+      }
+
+      /* ── Layout grid ────────────────────────────────────────────────── */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--grid-gap);
+        max-width: 1440px;
+        width: 100%;
+        margin-inline: auto;
+        padding: 0 var(--spacing-xl) var(--spacing-xl);
+      }
+      .grid.pull-up {
+        margin-top: -4.25rem;
+        position: relative;
+        z-index: 2;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+      .table-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--grid-gap);
+        align-items: start;
+      }
+
+      .section-head {
+        grid-column: 1 / -1;
+        margin: var(--spacing-lg) 0 -0.4rem;
+      }
+      .section-head .eyebrow {
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-magenta);
+      }
+      .section-head h2 {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-dark);
+        margin-top: 4px;
+      }
+      .section-head p {
+        font-size: var(--font-size-body);
+        color: var(--text-muted);
+        max-width: 60ch;
+        margin-top: 4px;
+      }
+
+      /* ── KPI cards ──────────────────────────────────────────────────── */
+      .kpi-row {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--grid-gap);
+      }
+      .kpi-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: var(--spacing-lg) var(--spacing-xl);
+        box-shadow: var(--card-shadow);
+        border: var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+      }
+      .kpi-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+      }
+      .kpi-card:nth-child(1)::before {
+        background: var(--color-purple-dark);
+      }
+      .kpi-card:nth-child(2)::before {
+        background: var(--color-magenta);
+      }
+      .kpi-card:nth-child(3)::before {
+        background: var(--color-blue);
+      }
+      .kpi-card:nth-child(4)::before {
+        background: var(--color-success);
+      }
+      .kpi-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+      }
+      .kpi-icon.purple {
+        background: rgba(60, 26, 91, 0.09);
+      }
+      .kpi-icon.magenta {
+        background: rgba(230, 0, 126, 0.09);
+      }
+      .kpi-icon.blue {
+        background: rgba(0, 151, 209, 0.09);
+      }
+      .kpi-icon.green {
+        background: rgba(16, 185, 129, 0.1);
+      }
+      .kpi-value {
+        font-family: var(--font-display);
+        font-size: var(--font-size-2xl);
+        font-weight: 800;
+        color: var(--text-dark);
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .kpi-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .kpi-change {
+        font-size: var(--font-size-xs);
+        color: var(--color-success);
+        font-weight: 600;
+      }
+
+      /* ── Card base ──────────────────────────────────────────────────── */
+      .card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: var(--card-padding);
+        box-shadow: var(--card-shadow);
+        border: var(--card-border);
+        transition: box-shadow 0.2s ease;
+        min-width: 0;
+      }
+      .card:hover {
+        box-shadow: 0 8px 28px rgba(16, 24, 40, 0.08);
+      }
+      .card h2 {
+        font-size: var(--font-size-md);
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0 0 var(--spacing-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+      .card h2 .h-ico {
+        font-size: 1.1em;
+      }
+      .card-sub {
+        font-size: var(--font-size-xs);
+        color: var(--text-light);
+        font-weight: 400;
+        margin-left: auto;
+      }
+
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.62rem 0;
+        border-bottom: 1px solid var(--color-gray-light);
+        gap: var(--spacing-md);
+      }
+      .metric:last-child {
+        border-bottom: none;
+      }
+      .metric-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        font-weight: 400;
+      }
+      .metric-value {
+        font-size: var(--font-size-md);
+        font-weight: 700;
+        color: var(--text-dark);
+        text-align: right;
+      }
+      .metric-value-small {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        line-height: 1.4;
+        max-width: 62%;
+      }
+      .good {
+        color: var(--color-success);
+      }
+      .warn {
+        color: var(--color-warning);
+      }
+      .bad {
+        color: var(--color-error);
+      }
+
+      /* ── Comparison (impact) ────────────────────────────────────────── */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: var(--spacing-lg);
+        align-items: center;
+        padding: var(--spacing-md) 0;
+      }
+      .comparison-col {
+        text-align: center;
+      }
+      .comparison-col h3 {
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin: 0 0 var(--spacing-xs);
+        font-weight: 600;
+      }
+      .comparison-value {
+        font-family: var(--font-display);
+        font-size: var(--font-size-xl);
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      .comparison-arrow {
+        font-size: 1.5rem;
+        color: var(--color-blue);
+        font-weight: 700;
+      }
+      .comparison-divider {
+        border: none;
+        border-top: 1px solid var(--color-gray-light);
+        margin: var(--spacing-md) 0;
+      }
+
+      /* ── Scenario comparison (3-up) ─────────────────────────────────── */
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-md);
+      }
+      .scenario {
+        border-radius: 14px;
+        padding: var(--spacing-lg);
+        border: 1px solid var(--color-gray-light);
+        background: #fbfcfe;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        position: relative;
+      }
+      .scenario.best {
+        border-color: rgba(16, 185, 129, 0.4);
+        background: linear-gradient(
+          180deg,
+          rgba(16, 185, 129, 0.06),
+          rgba(16, 185, 129, 0.01)
+        );
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.06);
+      }
+      .scenario-tag {
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .scenario-tag.t-red {
+        color: var(--color-error);
+      }
+      .scenario-tag.t-amber {
+        color: var(--color-warning);
+      }
+      .scenario-tag.t-green {
+        color: var(--color-success);
+      }
+      .scenario-name {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      .scenario-cost {
+        font-family: var(--font-display);
+        font-size: var(--font-size-xl);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .scenario-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-top: 0.3rem;
+      }
+      .scenario-rows .r {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+      }
+      .scenario-rows .r b {
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+      .badge-best {
+        position: absolute;
+        top: -10px;
+        right: 14px;
+        background: var(--color-success);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 100px;
+      }
+
+      /* ── Bar list chart ─────────────────────────────────────────────── */
+      .bar-chart {
+        margin-top: var(--spacing-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+      .bar-label {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+        min-width: 0;
+        flex: 0 0 38%;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 500;
+      }
+      .bar-track {
+        flex: 1;
+        height: 26px;
+        background: var(--color-gray-light);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 8px;
+        width: 0;
+        transition: opacity 0.4s ease;
+      }
+      .bar-value {
+        font-size: var(--font-size-xs);
+        min-width: 48px;
+        color: var(--text-dark);
+        font-weight: 700;
+        background: var(--color-gray-light);
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        text-align: center;
+      }
+
+      /* ── Pills / type tags ──────────────────────────────────────────── */
+      .pill {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        padding: 0.15rem 0.5rem;
+        border-radius: 100px;
+      }
+      .pill-pj {
+        background: rgba(0, 151, 209, 0.1);
+        color: var(--color-blue);
+      }
+      .pill-pf {
+        background: rgba(139, 58, 142, 0.12);
+        color: var(--color-purple);
+      }
+
+      /* ── SVG charts ─────────────────────────────────────────────────── */
+      .chart-wrap {
+        width: 100%;
+      }
+      .chart-legend {
+        display: flex;
+        gap: var(--spacing-lg);
+        flex-wrap: wrap;
+        margin-top: var(--spacing-md);
+        justify-content: center;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+      }
+      .donut-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* ── Architecture diagram ───────────────────────────────────────── */
+      .arch-diagram {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: var(--spacing-md) 0 var(--spacing-xs);
+      }
+      .arch-node {
+        background: linear-gradient(
+          135deg,
+          var(--color-purple-dark),
+          var(--color-navy)
+        );
+        padding: 0.85rem 1.15rem;
+        border-radius: 13px;
+        font-size: var(--font-size-sm);
+        text-align: center;
+        color: var(--color-white);
+        font-weight: 600;
+        min-width: 116px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+        box-shadow: 0 6px 18px rgba(60, 26, 91, 0.22);
+      }
+      .arch-node small {
+        opacity: 0.7;
+        font-size: var(--font-size-xs);
+        font-weight: 400;
+      }
+      .arch-node:nth-child(4n + 1) {
+        background: linear-gradient(
+          135deg,
+          var(--color-magenta),
+          var(--color-purple-dark)
+        );
+      }
+      .arch-node:nth-child(8n + 5) {
+        background: linear-gradient(
+          135deg,
+          var(--color-blue),
+          var(--color-navy)
+        );
+      }
+      .arch-arrow {
+        color: var(--color-blue);
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+      }
+
+      /* ── Tables ─────────────────────────────────────────────────────── */
+      .table-scroll {
+        overflow-x: auto;
+      }
+      .evolution-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--font-size-sm);
+      }
+      .evolution-table th {
+        text-align: left;
+        padding: 0.7rem 0.6rem;
+        color: var(--text-muted);
+        border-bottom: 2px solid var(--color-gray-light);
+        font-weight: 600;
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+      }
+      .evolution-table td {
+        padding: 0.7rem 0.6rem;
+        border-bottom: 1px solid var(--color-gray-light);
+        color: var(--text-dark);
+        white-space: nowrap;
+      }
+      .evolution-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .evolution-table tbody tr:hover {
+        background: rgba(0, 151, 209, 0.035);
+      }
+      .evolution-table .rank {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--text-light);
+      }
+      .evolution-table .mono {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.76rem;
+        color: var(--text-muted);
+      }
+      .evolution-table .score-cell {
+        font-weight: 700;
+        color: var(--color-purple-dark);
+      }
+      .scorebar {
+        display: inline-block;
+        vertical-align: middle;
+        height: 6px;
+        border-radius: 100px;
+        background: var(--grad-brand);
+        margin-right: 0.5rem;
+      }
+      .cell-ok {
+        color: var(--color-success);
+        font-weight: 600;
+      }
+      .cell-no {
+        color: var(--text-light);
+      }
+      .cell-warn {
+        color: var(--color-warning);
+        font-weight: 600;
+      }
+
+      /* ── Strategic cards (outros produtos) ──────────────────────────── */
+      .strat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--grid-gap);
+      }
+      .strat-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: var(--spacing-lg);
+        box-shadow: var(--card-shadow);
+        border: var(--card-border);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .strat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(16, 24, 40, 0.1);
+      }
+      .strat-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .strat-card.a1::after {
+        background: var(--color-magenta);
+      }
+      .strat-card.a2::after {
+        background: var(--color-blue);
+      }
+      .strat-card.a3::after {
+        background: var(--color-purple);
+      }
+      .strat-card.a4::after {
+        background: var(--color-success);
+      }
+      .strat-card.a5::after {
+        background: var(--color-navy);
+      }
+      .strat-card.a6::after {
+        background: var(--color-purple-dark);
+      }
+      .strat-ico {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        background: rgba(60, 26, 91, 0.06);
+        margin-bottom: 0.2rem;
+      }
+      .strat-card h3 {
+        font-size: var(--font-size-md);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.01em;
+      }
+      .strat-card p {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+      .strat-tag {
+        margin-top: auto;
+        align-self: flex-start;
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        padding: 0.3rem 0.7rem;
+        border-radius: 100px;
+        background: rgba(230, 0, 126, 0.08);
+        color: var(--color-magenta);
+      }
+      .strat-highlight {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
+        padding: var(--spacing-lg) var(--spacing-xl);
+        border-radius: var(--card-radius);
+        background: linear-gradient(
+          120deg,
+          rgba(60, 26, 91, 0.05),
+          rgba(230, 0, 126, 0.06)
+        );
+        border: 1px solid rgba(139, 58, 142, 0.16);
+      }
+      .strat-highlight .sh-big {
+        font-family: var(--font-display);
+        font-size: var(--font-size-xl);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        background: var(--grad-brand);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        white-space: nowrap;
+      }
+      .strat-highlight p {
+        font-size: var(--font-size-body);
+        color: var(--text-muted);
+        margin: 0;
+        flex: 1;
+        min-width: 240px;
+      }
+
+      /* ── To-Be architecture ─────────────────────────────────────────── */
+      .tobe-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .tobe-layer {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: var(--spacing-md);
+        align-items: center;
+        padding: var(--spacing-md);
+        border-radius: 14px;
+        background: #fbfcfe;
+        border: 1px solid var(--color-gray-light);
+      }
+      .tobe-head {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+      }
+      .tobe-num {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: #fff;
+        background: var(--grad-brand);
+      }
+      .tobe-title {
+        font-size: var(--font-size-sm);
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1.2;
+      }
+      .tobe-title small {
+        display: block;
+        font-size: var(--font-size-xs);
+        font-weight: 400;
+        color: var(--text-light);
+      }
+      .tobe-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+      .chip {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        padding: 0.35rem 0.7rem;
+        border-radius: 9px;
+        background: #fff;
+        border: 1px solid rgba(60, 26, 91, 0.14);
+        color: var(--color-purple-dark);
+        white-space: nowrap;
+      }
+      .chip.warm {
+        border-color: rgba(230, 0, 126, 0.25);
+        color: var(--color-magenta);
+        background: rgba(230, 0, 126, 0.04);
+      }
+      .chip.blue {
+        border-color: rgba(0, 151, 209, 0.28);
+        color: var(--color-blue);
+        background: rgba(0, 151, 209, 0.05);
+      }
+      .tobe-note {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-md);
+        border-radius: 12px;
+        background: rgba(245, 158, 11, 0.06);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+      .tobe-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--grid-gap);
+        margin-bottom: var(--spacing-lg);
+      }
+      .tobe-metric {
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-radius: 14px;
+        background: linear-gradient(
+          135deg,
+          var(--color-purple-dark),
+          var(--color-navy)
+        );
+        color: #fff;
+      }
+      .tobe-metric:nth-child(2) {
+        background: linear-gradient(
+          135deg,
+          var(--color-magenta),
+          var(--color-purple-dark)
+        );
+      }
+      .tobe-metric:nth-child(3) {
+        background: linear-gradient(
+          135deg,
+          var(--color-blue),
+          var(--color-navy)
+        );
+      }
+      .tobe-metric .tm-val {
+        font-family: var(--font-display);
+        font-size: var(--font-size-xl);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .tobe-metric .tm-lbl {
+        font-size: var(--font-size-xs);
+        color: rgba(255, 255, 255, 0.72);
+        margin-top: 2px;
+      }
+
+      /* ── Formula block ──────────────────────────────────────────────── */
+      .formula-block {
+        background: #fbfaff;
+        border: 1px solid rgba(139, 58, 142, 0.15);
+        border-radius: 14px;
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+      }
+      .formula-label {
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-purple);
+        margin-bottom: 0.6rem;
+      }
+      .formula-main {
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        color: var(--text-dark);
+        line-height: 1.7;
+        word-break: break-word;
+      }
+      .formula-main .fa {
+        color: var(--color-blue);
+        font-weight: 700;
+      }
+      .formula-main .fb {
+        color: var(--color-magenta);
+        font-weight: 700;
+      }
+
+      /* ── States / footer ────────────────────────────────────────────── */
+      #loading {
+        display: none;
+        text-align: center;
+        padding: var(--spacing-2xl);
+        color: var(--text-muted);
+        font-size: var(--font-size-md);
+      }
+      #error {
+        display: none;
+        text-align: center;
+        padding: var(--spacing-md);
+        margin: var(--spacing-md) var(--spacing-xl);
+        color: var(--color-error);
+        background: rgba(239, 68, 68, 0.05);
+        border-radius: var(--card-radius);
+        font-size: var(--font-size-body);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+      }
+      #disconnected {
+        display: none;
+        text-align: center;
+        padding: var(--spacing-sm) var(--spacing-md);
+        margin: 0 var(--spacing-xl) var(--spacing-md);
+        color: var(--color-warning);
+        background: rgba(245, 158, 11, 0.05);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: var(--card-radius);
+        font-size: var(--font-size-sm);
+      }
+      .dashboard-footer {
+        text-align: center;
+        padding: var(--spacing-xl) var(--spacing-md) var(--spacing-2xl);
+        color: var(--text-light);
+        font-size: var(--font-size-xs);
+      }
+      .dashboard-footer .foot-logo {
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+        margin-bottom: 0.4rem;
+      }
+      .dashboard-footer span {
+        margin: 0 var(--spacing-sm);
+      }
+
+      /* ── Responsive ─────────────────────────────────────────────────── */
+      @media (max-width: 1023px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .kpi-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .span-2 {
+          grid-column: span 2;
+        }
+        .scenario-grid {
+          grid-template-columns: 1fr;
+        }
+        .table-grid {
+          grid-template-columns: 1fr;
+        }
+        .strat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .tobe-metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 599px) {
+        .grid {
+          grid-template-columns: 1fr;
+          padding: 0 var(--spacing-md) var(--spacing-md);
+          gap: var(--spacing-md);
+        }
+        .grid.pull-up {
+          margin-top: -3.5rem;
+        }
+        .kpi-row {
+          grid-template-columns: 1fr 1fr;
+          gap: var(--spacing-md);
+        }
+        .span-2,
+        .kpi-row {
+          grid-column: 1 / -1;
+        }
+        .span-2 {
+          grid-column: 1 / -1;
+        }
+        .kpi-value {
+          font-size: var(--font-size-xl);
+        }
+        .kpi-card {
+          padding: var(--spacing-md);
+        }
+        .hero {
+          padding: var(--spacing-xl) var(--spacing-md) 5rem;
+        }
+        .card {
+          padding: var(--spacing-lg);
+        }
+        .comparison {
+          grid-template-columns: 1fr;
+          gap: var(--spacing-sm);
+        }
+        .comparison-arrow {
+          transform: rotate(90deg);
+          justify-self: center;
+        }
+        .bar-label {
+          flex-basis: 30%;
+          font-size: 0.65rem;
+        }
+        .table-grid {
+          gap: var(--spacing-md);
+        }
+        .evolution-table {
+          font-size: 0.74rem;
+        }
+        .evolution-table th {
+          padding: 0.5rem 0.4rem;
+          font-size: 0.62rem;
+        }
+        .evolution-table td {
+          padding: 0.55rem 0.4rem;
+        }
+        .evolution-table .mono {
+          max-width: 96px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          vertical-align: middle;
+        }
+        .scorebar {
+          display: none;
+        }
+        .strat-grid {
+          grid-template-columns: 1fr;
+        }
+        .tobe-layer {
+          grid-template-columns: 1fr;
+          gap: 0.65rem;
+        }
+        a,
+        button,
+        [role="button"] {
+          min-height: 2.75rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .bar-fill {
+          transition: none !important;
+        }
+      }
+    </style>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <!-- ── Hero ─────────────────────────────────────────────────────── -->
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="hero-top">
+          <div class="brand-mark">
+            <div class="brand-dot">🧠</div>
+            <div class="brand-name">
+              Cache Warmup Recommender<span
+                >Pré-aquecimento preditivo de cache · AWS</span
+              >
+            </div>
+          </div>
+          <div class="badges">
+            <span class="badge">Hackathon 2026</span>
+            <span class="badge">SageMaker + ElastiCache</span>
+          </div>
+        </div>
+        <div class="hero-eyebrow">Cache de Fallback Inteligente</div>
+        <h1>
+          Quando a API cai, o sistema <span class="accent">continua</span>.
+        </h1>
+        <p class="hero-sub">
+          Um modelo hybrid-SVD analisa
+          <strong id="hero-records">724.788</strong> consultas históricas e
+          pré-aquece o cache com o que vai ser pedido —
+          <strong>antes</strong> da falha acontecer. Disponibilidade efetiva
+          sobe para <strong>99,70%</strong> e o custo do risco cai
+          <strong>79,8%</strong>.
+        </p>
+      </div>
+    </header>
+
+    <div id="loading">⏳ Carregando dados...</div>
+    <div id="error"></div>
+    <div id="disconnected">⚠️ Conexão perdida — tentando reconectar...</div>
+
+    <!-- ── KPIs (pull up over hero) ─────────────────────────────────── -->
+    <main class="grid pull-up" id="dashboard">
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon purple">📊</div>
+          <div class="kpi-value tnum" id="kpi-records">724.8K</div>
+          <div class="kpi-label">Registros Processados</div>
+          <div class="kpi-change" id="kpi-records-sub">
+            21.5K customers únicos
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon magenta">🔗</div>
+          <div class="kpi-value tnum" id="kpi-pairs">2.000</div>
+          <div class="kpi-label">Interações Recomendadas</div>
+          <div class="kpi-change" id="kpi-pairs-sub">
+            21 relatórios cobertos
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon blue">⚡</div>
+          <div class="kpi-value tnum" id="kpi-hit-rate">95%</div>
+          <div class="kpi-label">Cobertura na Falha</div>
+          <div class="kpi-change">~800ms → ~50ms latência</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green">🧠</div>
+          <div class="kpi-value tnum" id="kpi-variance">22.83%</div>
+          <div class="kpi-label">Variância Explicada SVD</div>
+          <div class="kpi-change" id="kpi-variance-sub">RMSE: 0.9475</div>
+        </div>
+      </div>
+
+      <!-- ── Impacto + cenários ─────────────────────────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">O que muda na queda da API</div>
+        <h2>Impacto do warmup preditivo</h2>
+        <p>
+          O cache de fallback existe para um único momento: quando a API
+          Polaris/Experian fica indisponível. O que acontece nesse instante
+          define tudo.
+        </p>
+      </div>
+
+      <section class="card span-2">
+        <h2>
+          <span class="h-ico">📈</span> Impacto do Warmup
+          <span class="card-sub">por queda de API</span>
+        </h2>
+        <div class="comparison">
+          <div class="comparison-col">
+            <h3>Sem Warmup</h3>
+            <div class="comparison-value bad">0%</div>
+            <small class="metric-label">servidas na falha</small>
+          </div>
+          <div class="comparison-arrow">→</div>
+          <div class="comparison-col">
+            <h3>Com Warmup</h3>
+            <div class="comparison-value good" id="hit-rate">95%</div>
+            <small class="metric-label">servidas na falha</small>
+          </div>
+        </div>
+        <hr class="comparison-divider" />
+        <div class="comparison">
+          <div class="comparison-col">
+            <h3>Latência Sem Cache</h3>
+            <div class="comparison-value warn">~800ms</div>
+            <small class="metric-label">P95</small>
+          </div>
+          <div class="comparison-arrow">→</div>
+          <div class="comparison-col">
+            <h3>Latência Com Cache</h3>
+            <div class="comparison-value good">~50ms</div>
+            <small class="metric-label">P95</small>
+          </div>
+        </div>
+        <hr class="comparison-divider" />
+        <div class="metric">
+          <span class="metric-label"
+            >Cobertura estimada do volume (top relatórios)</span
+          ><span class="metric-value good" id="coverage">9.3%</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="h-ico">🧠</span> Modelo SVD</h2>
+        <div class="metric">
+          <span class="metric-label">Variância Explicada</span
+          ><span class="metric-value good" id="explained-var">22.83%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">RMSE Reconstrução</span
+          ><span class="metric-value bad" id="rmse">0.9475</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Dimensões Latentes</span
+          ><span class="metric-value" id="n-components">50</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Forma da Matriz</span
+          ><span class="metric-value" id="matrix-shape">21497 × 276154</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Densidade</span
+          ><span class="metric-value" id="density">0.005%</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Interações Não-Zero</span
+          ><span class="metric-value" id="n-interactions">297.8K</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Tempo de Treinamento</span
+          ><span class="metric-value good" id="training-time">11.2s</span>
+        </div>
+      </section>
+
+      <!-- ── 3 cenários de custo ────────────────────────────────────── -->
+      <section class="card full-width">
+        <h2>
+          <span class="h-ico">💰</span> Três cenários, uma escolha óbvia
+          <span class="card-sub"
+            >custo mensal do risco de indisponibilidade · ~10,8h de
+            downtime/mês</span
+          >
+        </h2>
+        <div class="scenario-grid">
+          <div class="scenario">
+            <span class="scenario-tag t-red">Sem fallback</span>
+            <span class="scenario-name">Depende 100% da API</span>
+            <span class="scenario-cost bad">USD 62.901</span>
+            <div class="scenario-rows">
+              <div class="r">
+                <span>Servidas na falha</span><b class="bad">0%</b>
+              </div>
+              <div class="r">
+                <span>Consultas perdidas/mês</span><b>23.297</b>
+              </div>
+              <div class="r"><span>Disponibilidade</span><b>98,50%</b></div>
+            </div>
+          </div>
+          <div class="scenario">
+            <span class="scenario-tag t-amber">Cache passivo</span>
+            <span class="scenario-name">Reativo — só o que já passou</span>
+            <span class="scenario-cost warn">USD 43.582</span>
+            <div class="scenario-rows">
+              <div class="r">
+                <span>Servidas na falha</span><b class="warn">31%</b>
+              </div>
+              <div class="r">
+                <span>Consultas perdidas/mês</span><b>16.075</b>
+              </div>
+              <div class="r"><span>Disponibilidade</span><b>98,97%</b></div>
+            </div>
+          </div>
+          <div class="scenario best">
+            <span class="badge-best">Recomendado</span>
+            <span class="scenario-tag t-green">Cache inteligente + ML</span>
+            <span class="scenario-name">Preditivo — aquece o que virá</span>
+            <span class="scenario-cost good">USD 12.679</span>
+            <div class="scenario-rows">
+              <div class="r">
+                <span>Servidas na falha</span><b class="good">80,2%</b>
+              </div>
+              <div class="r">
+                <span>Consultas perdidas/mês</span><b>4.613</b>
+              </div>
+              <div class="r">
+                <span>Disponibilidade</span><b class="good">99,70%</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Charts ─────────────────────────────────────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">Saída do modelo</div>
+        <h2>O que o cache vai aquecer</h2>
+        <p>
+          O modelo não pré-aquece tudo — identifica os relatórios que concentram
+          o volume e pré-carrega apenas o que importa.
+        </p>
+      </div>
+
+      <section class="card span-2">
+        <h2>
+          <span class="h-ico">📋</span> Top Relatórios por Score
+          <span class="card-sub">score híbrido SVD + negócio</span>
+        </h2>
+        <div class="bar-chart" id="reports-chart">
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_TOP_SCORE_PJ"
+              >AVANCADO TOP SCORE PJ</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 100%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.426</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PJ"
+              >AVANCADO PJ</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 95%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.408</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_INTERMEDIARIO_TOP_SCORE_PJ"
+              >INTERMEDIARIO TOP SCORE PJ</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 95%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.408</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PJ_PME"
+              >AVANCADO PJ PME</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 94%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.401</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_BASICO_PJ_PME"
+              >BASICO PJ PME</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.392</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PJ_PME_ANALITICO"
+              >AVANCADO PJ PME ANALITICO</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.391</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PF_NOVO_FRONT"
+              >AVANCADO PF NOVO FRONT</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.391</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_AVANCADO_PJ_ANALITICO"
+              >AVANCADO PJ ANALITICO</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.391</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" title="RELATORIO_INTERMEDIARIO_PJ"
+              >INTERMEDIARIO PJ</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.390</span>
+          </div>
+          <div class="bar-row">
+            <span
+              class="bar-label"
+              title="RELATORIO_AVANCADO_TOP_SCORE_PJ_ANALITICO"
+              >AVANCADO TOP SCORE PJ ANA</span
+            >
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width: 91%; background: var(--grad-brand)"
+              ></div>
+            </div>
+            <span class="bar-value">0.388</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>
+          <span class="h-ico">🥧</span> Volume por Tipo
+          <span class="card-sub">PJ × PF</span>
+        </h2>
+        <div class="chart-wrap" id="type-donut">
+          <svg
+            viewBox="0 0 200 200"
+            width="100%"
+            style="max-width: 220px; margin: 0 auto; display: block"
+          >
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              fill="none"
+              stroke="var(--color-gray-light)"
+              stroke-width="32"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              fill="none"
+              stroke="var(--color-navy)"
+              stroke-width="32"
+              stroke-dasharray="365.7 502.7"
+              stroke-dashoffset="125.7"
+              transform="rotate(-90 100 100)"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              fill="none"
+              stroke="var(--color-magenta)"
+              stroke-width="32"
+              stroke-dasharray="137.0 502.7"
+              stroke-dashoffset="491.4"
+              transform="rotate(-90 100 100)"
+            />
+            <text
+              x="100"
+              y="95"
+              text-anchor="middle"
+              font-family="var(--font-display)"
+              font-size="18"
+              font-weight="800"
+              fill="var(--text-dark)"
+            >
+              72.7%
+            </text>
+            <text
+              x="100"
+              y="115"
+              text-anchor="middle"
+              font-size="10"
+              fill="var(--text-muted)"
+            >
+              PJ dominante
+            </text>
+          </svg>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span
+                class="legend-dot"
+                style="background: var(--color-navy)"
+              ></span
+              >PJ — 72,7% (524.954)
+            </div>
+            <div class="legend-item">
+              <span
+                class="legend-dot"
+                style="background: var(--color-magenta)"
+              ></span
+              >PF — 27,3% (197.428)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-2">
+        <h2>
+          <span class="h-ico">📈</span> Cobertura Acumulada
+          <span class="card-sub">top 10 relatórios = 82% do volume</span>
+        </h2>
+        <div class="chart-wrap" id="coverage-chart">
+          <svg viewBox="0 0 420 240" width="100%" style="max-width: 100%">
+            <!-- Grid lines -->
+            <line
+              x1="20"
+              y1="200"
+              x2="400"
+              y2="200"
+              stroke="var(--color-gray-light)"
+              stroke-width="1"
+            />
+            <line
+              x1="20"
+              y1="155"
+              x2="400"
+              y2="155"
+              stroke="var(--color-gray-light)"
+              stroke-width="0.5"
+              stroke-dasharray="4"
+            />
+            <line
+              x1="20"
+              y1="110"
+              x2="400"
+              y2="110"
+              stroke="var(--color-gray-light)"
+              stroke-width="0.5"
+              stroke-dasharray="4"
+            />
+            <line
+              x1="20"
+              y1="65"
+              x2="400"
+              y2="65"
+              stroke="var(--color-gray-light)"
+              stroke-width="0.5"
+              stroke-dasharray="4"
+            />
+            <line
+              x1="20"
+              y1="20"
+              x2="400"
+              y2="20"
+              stroke="var(--color-gray-light)"
+              stroke-width="0.5"
+              stroke-dasharray="4"
+            />
+            <!-- Y axis labels -->
+            <text
+              x="14"
+              y="204"
+              text-anchor="end"
+              font-size="9"
+              fill="var(--text-light)"
+            >
+              0%
+            </text>
+            <text
+              x="14"
+              y="159"
+              text-anchor="end"
+              font-size="9"
+              fill="var(--text-light)"
+            >
+              25%
+            </text>
+            <text
+              x="14"
+              y="114"
+              text-anchor="end"
+              font-size="9"
+              fill="var(--text-light)"
+            >
+              50%
+            </text>
+            <text
+              x="14"
+              y="69"
+              text-anchor="end"
+              font-size="9"
+              fill="var(--text-light)"
+            >
+              75%
+            </text>
+            <text
+              x="14"
+              y="24"
+              text-anchor="end"
+              font-size="9"
+              fill="var(--text-light)"
+            >
+              100%
+            </text>
+            <!-- Area fill -->
+            <polygon
+              points="20,200 20,175 39,156 58,139 77,122 96,106 115,91 134,77 153,68 172,59 191,52 209,45 228,39 247,34 266,31 285,27 304,25 323,22 342,21 361,20 380,20 380,200"
+              fill="url(#coverage-grad)"
+              opacity="0.3"
+            />
+            <!-- Line -->
+            <polyline
+              points="20,175 39,156 58,139 77,122 96,106 115,91 134,77 153,68 172,59 191,52 209,45 228,39 247,34 266,31 285,27 304,25 323,22 342,21 361,20 380,20"
+              fill="none"
+              stroke="var(--color-blue)"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <!-- 80% threshold line -->
+            <line
+              x1="20"
+              y1="56"
+              x2="400"
+              y2="56"
+              stroke="var(--color-success)"
+              stroke-width="1"
+              stroke-dasharray="6 3"
+            />
+            <text
+              x="403"
+              y="60"
+              font-size="8"
+              fill="var(--color-success)"
+              font-weight="600"
+            >
+              80%
+            </text>
+            <!-- Key points -->
+            <circle
+              cx="191"
+              cy="52"
+              r="4"
+              fill="var(--color-blue)"
+              stroke="#fff"
+              stroke-width="1.5"
+            />
+            <text
+              x="191"
+              y="44"
+              text-anchor="middle"
+              font-size="8"
+              fill="var(--color-blue)"
+              font-weight="700"
+            >
+              82.2%
+            </text>
+            <!-- X axis label -->
+            <text
+              x="200"
+              y="230"
+              text-anchor="middle"
+              font-size="9"
+              fill="var(--text-muted)"
+            >
+              Relatórios (ordenados por volume)
+            </text>
+            <!-- Gradient def -->
+            <defs>
+              <linearGradient id="coverage-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stop-color="var(--color-blue)"
+                  stop-opacity="0.4"
+                />
+                <stop
+                  offset="100%"
+                  stop-color="var(--color-blue)"
+                  stop-opacity="0.02"
+                />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="h-ico">📊</span> Dataset</h2>
+        <div class="metric">
+          <span class="metric-label">Total de Registros</span
+          ><span class="metric-value tnum" id="total-records">724.8K</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Customers Únicos</span
+          ><span class="metric-value tnum" id="unique-customers">21.5K</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Docs Consultados</span
+          ><span class="metric-value tnum" id="unique-consulted">276.2K</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Relatórios Únicos</span
+          ><span class="metric-value tnum" id="unique-reports">21</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Features Únicas</span
+          ><span class="metric-value tnum" id="unique-features">67</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Período</span
+          ><span class="metric-value" id="date-range"
+            >2026-05-01 → 2026-05-14</span
+          >
+        </div>
+      </section>
+
+      <!-- ── Arquitetura ────────────────────────────────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">Como roda</div>
+        <h2>Pipeline event-driven 100% gerenciado</h2>
+        <p>
+          Do upload do CSV ao cache aquecido — sem intervenção manual,
+          executando automaticamente.
+        </p>
+      </div>
+
+      <section class="card full-width">
+        <h2><span class="h-ico">📐</span> Arquitetura Event-Driven</h2>
+        <div class="arch-diagram">
+          <div class="arch-node">📄 CSV Upload<small>S3 input/</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">⚡ Lambda Trigger<small>S3 Event</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">🧠 SageMaker<small>ML Processing</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">📊 JSON Output<small>S3 output/</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">🔥 Lambda Warmup<small>API Calls</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-node">✅ Cache Ready<small>Pré-aquecido</small></div>
+        </div>
+      </section>
+
+      <!-- ── Tabelas ────────────────────────────────────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">Recomendações geradas</div>
+        <h2>Os alvos do warmup, em detalhe</h2>
+      </div>
+
+      <div class="table-grid full-width">
+        <section class="card">
+          <h2><span class="h-ico">📋</span> Top 5 Relatórios</h2>
+          <div class="table-scroll">
+            <table class="evolution-table" id="table-top-reports">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Relatório</th>
+                  <th>Tipo</th>
+                  <th>Volume</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>AVANCADO TOP SCORE PJ</td>
+                  <td><span class="pill pill-pj">PJ</span></td>
+                  <td>101.6K</td>
+                  <td class="score-cell">0.4258</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>AVANCADO PJ</td>
+                  <td><span class="pill pill-pj">PJ</span></td>
+                  <td>73.3K</td>
+                  <td class="score-cell">0.4083</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>INTERMEDIARIO TOP SCORE PJ</td>
+                  <td><span class="pill pill-pj">PJ</span></td>
+                  <td>68.4K</td>
+                  <td class="score-cell">0.4082</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>AVANCADO PJ PME</td>
+                  <td><span class="pill pill-pj">PJ</span></td>
+                  <td>55.4K</td>
+                  <td class="score-cell">0.4014</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>BASICO PJ PME</td>
+                  <td><span class="pill pill-pj">PJ</span></td>
+                  <td>30.1K</td>
+                  <td class="score-cell">0.3916</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2><span class="h-ico">🧩</span> Top 5 Features</h2>
+          <div class="table-scroll">
+            <table class="evolution-table" id="table-top-features">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Feature</th>
+                  <th>Tipo</th>
+                  <th>Volume</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>QSA AVANCADO</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6165</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>QSA AVANCADO</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6070</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>FATURAMENTO RECEBIVEIS</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6064</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>PARTICIPACOES</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6032</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>MAIS ANOTACOES 1000</td>
+                  <td>O</td>
+                  <td>1</td>
+                  <td class="score-cell">0.6029</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2><span class="h-ico">👤</span> Top 5 Customers</h2>
+          <div class="table-scroll">
+            <table class="evolution-table" id="table-top-customers">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Documento</th>
+                  <th>Volume</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td class="mono">47122133457579</td>
+                  <td>13</td>
+                  <td class="score-cell">0.5972</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td class="mono">70647899284766</td>
+                  <td>1</td>
+                  <td class="score-cell">0.5970</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td class="mono">98004630850411</td>
+                  <td>8</td>
+                  <td class="score-cell">0.5928</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td class="mono">14618434491831</td>
+                  <td>1</td>
+                  <td class="score-cell">0.5920</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td class="mono">58357357107732</td>
+                  <td>2</td>
+                  <td class="score-cell">0.5916</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2><span class="h-ico">📄</span> Top 5 Docs Consultados</h2>
+          <div class="table-scroll">
+            <table class="evolution-table" id="table-top-consulted">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Documento</th>
+                  <th>Volume</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td
+                    class="mono"
+                    title="b184666b447a66fb57301bbecab26f1db8b72281"
+                  >
+                    b184666b447a66fb…
+                  </td>
+                  <td>1</td>
+                  <td class="score-cell">0.6064</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td
+                    class="mono"
+                    title="c845f4f0f1fedea9e52e41d096f32746019fb9dd"
+                  >
+                    c845f4f0f1fedea9…
+                  </td>
+                  <td>1</td>
+                  <td class="score-cell">0.6032</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td
+                    class="mono"
+                    title="2971a29cd2e6379099af827b08ed482da2275106"
+                  >
+                    2971a29cd2e63790…
+                  </td>
+                  <td>1</td>
+                  <td class="score-cell">0.6019</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td
+                    class="mono"
+                    title="5fcbf1add0869ee9e830eb3b6b5a0ddb440189d4"
+                  >
+                    5fcbf1add0869ee9…
+                  </td>
+                  <td>1</td>
+                  <td class="score-cell">0.6005</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td
+                    class="mono"
+                    title="59a9b606bbd95946a7bdb1e9b060c2ec8f6c1b92"
+                  >
+                    59a9b606bbd95946…
+                  </td>
+                  <td>5</td>
+                  <td class="score-cell">0.6001</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="card full-width">
+        <h2>
+          <span class="h-ico">🔗</span> Top 5 Pares (Customer × Documento)
+        </h2>
+        <div class="table-scroll">
+          <table class="evolution-table" id="table-top-pairs">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Documento Consultado</th>
+                <th>Volume</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td class="mono">93986088673863</td>
+                <td
+                  class="mono"
+                  title="b4b3f7ab82d4bb59b36cf8cd4d11679e32d34901"
+                >
+                  b4b3f7ab82d4bb59…
+                </td>
+                <td>56.2K</td>
+                <td class="score-cell">0.6545</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="mono">93986088673863</td>
+                <td
+                  class="mono"
+                  title="6ce4f13cebdd836e1d33c0aa7b259e92120dec04"
+                >
+                  6ce4f13cebdd836e…
+                </td>
+                <td>39.7K</td>
+                <td class="score-cell">0.6359</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="mono">93986088673863</td>
+                <td
+                  class="mono"
+                  title="f2e86290669c003efa1ccf5b0aa4159c06a9fa7b"
+                >
+                  f2e86290669c003e…
+                </td>
+                <td>9.4K</td>
+                <td class="score-cell">0.5664</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td class="mono">47053971473575</td>
+                <td
+                  class="mono"
+                  title="495eb099ee0b7719e48c5ca00dcf9ffd71c630de"
+                >
+                  495eb099ee0b7719…
+                </td>
+                <td>59</td>
+                <td class="score-cell">0.4888</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td class="mono">39752046896559</td>
+                <td
+                  class="mono"
+                  title="d1e4dab974a8062471106e1501d093fe54d78a75"
+                >
+                  d1e4dab974a80624…
+                </td>
+                <td>46</td>
+                <td class="score-cell">0.4574</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── Parâmetros + roadmap ───────────────────────────────────── -->
+      <section class="card">
+        <h2><span class="h-ico">⚙️</span> Parâmetros do Modelo</h2>
+        <div class="formula-block">
+          <div class="formula-label">Fórmula central</div>
+          <div class="formula-main" id="formula">
+            score_final = w_mf · score_mf + w_biz · (α·V_norm + β·exp(-λ·Δt) +
+            γ·W_biz)
+          </div>
+        </div>
+        <div class="metric">
+          <span class="metric-label">α — Volume</span
+          ><span class="metric-value" id="alpha">0.35</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">β — Recência</span
+          ><span class="metric-value" id="beta">0.4</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">γ — Negócio</span
+          ><span class="metric-value" id="gamma">0.25</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">λ — Decaimento</span
+          ><span class="metric-value" id="lambda">0.15</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">W_MF — Peso SVD</span
+          ><span class="metric-value" id="w-mf">0.45</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">W_BIZ — Peso Negócio</span
+          ><span class="metric-value" id="w-biz">0.55</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">SVD Components</span
+          ><span class="metric-value">50</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">SVD Iterações</span
+          ><span class="metric-value">15</span>
+        </div>
+        <div class="formula-block" style="margin-top:var(--spacing-md)">
+          <div class="formula-label">W_biz (peso de negócio)</div>
+          <div class="formula-main">W = 0.30·billing + 0.25·inquiry + 0.25·post_view + 0.20·latency_norm</div>
+        </div>
+      </section>
+
+      <section class="card span-2">
+        <h2><span class="h-ico">🚀</span> Roadmap — Batch vs Real-Time</h2>
+        <div class="table-scroll">
+          <table class="evolution-table">
+            <thead>
+              <tr>
+                <th>Cenário</th>
+                <th>Batch (Atual)</th>
+                <th>Endpoint (Futuro)</th>
+                <th>Trigger</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Predição sob demanda</td>
+                <td class="cell-no">❌ Não suporta</td>
+                <td class="cell-ok">✅ Score via API</td>
+                <td>Apps precisarem score real-time</td>
+              </tr>
+              <tr>
+                <td>Volume &gt; 10M registros</td>
+                <td class="cell-warn">⚠️ Job lento (~30min+)</td>
+                <td class="cell-ok">✅ Inferência rápida</td>
+                <td>Batch ultrapassar SLA</td>
+              </tr>
+              <tr>
+                <td>Model versioning</td>
+                <td class="cell-no">❌ Re-treina do zero</td>
+                <td class="cell-ok">✅ Registry + A/B test</td>
+                <td>Precisar rollback</td>
+              </tr>
+              <tr>
+                <td>Multi-tenant</td>
+                <td class="cell-no">❌ Batch único</td>
+                <td class="cell-ok">✅ Auto-scaling</td>
+                <td>Múltiplos consumers</td>
+              </tr>
+              <tr>
+                <td>Custo (MVP)</td>
+                <td class="cell-ok">✅ ~$0.50/exec</td>
+                <td class="cell-warn">⚠️ ~$50/mês</td>
+                <td>ROI justificar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── Análise estratégica — outros produtos ──────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">Visão de produto</div>
+        <h2>Além do cache: o que o motor oferece a outros produtos</h2>
+        <p>
+          O mesmo engine — filtragem colaborativa (SVD) + heurísticas de negócio
+          — é agnóstico ao produto. A inteligência que aquece o cache de
+          fallback é reaproveitável como camada de decisão em todo o portfólio.
+        </p>
+      </div>
+
+      <div class="strat-grid full-width">
+        <div class="strat-card a1">
+          <div class="strat-ico">🎯</div>
+          <h3>Next Best Report</h3>
+          <p>
+            A matriz cliente × documento prevê qual relatório cada cliente vai
+            precisar a seguir — virando recomendação de cross-sell e up-sell
+            para o time comercial e para o produto.
+          </p>
+          <span class="strat-tag">+ receita por cliente</span>
+        </div>
+        <div class="strat-card a2">
+          <div class="strat-ico">📡</div>
+          <h3>Cache Warmup as a Platform</h3>
+          <p>
+            O warmup não é exclusivo da Polaris. O mesmo pipeline pré-aquece
+            qualquer API crítica — Score, SCR, Cadastro, Monitora — entregando
+            resiliência como serviço compartilhado.
+          </p>
+          <span class="strat-tag">reuso multi-produto</span>
+        </div>
+        <div class="strat-card a3">
+          <div class="strat-ico">📈</div>
+          <h3>Previsão de demanda &amp; capacity</h3>
+          <p>
+            As projeções de volume por relatório e por janela de tempo alimentam
+            autoscaling e planejamento de infraestrutura — dimensionando
+            capacidade antes do pico, não depois.
+          </p>
+          <span class="strat-tag">− custo de infra ociosa</span>
+        </div>
+        <div class="strat-card a4">
+          <div class="strat-ico">⏳</div>
+          <h3>Sinais de engajamento &amp; churn</h3>
+          <p>
+            O decaimento por recência (λ) e a frequência de consulta revelam
+            clientes esfriando — antecipando ações de retenção antes da perda de
+            receita recorrente.
+          </p>
+          <span class="strat-tag">retenção</span>
+        </div>
+        <div class="strat-card a5">
+          <div class="strat-ico">💰</div>
+          <h3>Priorização por valor de negócio</h3>
+          <p>
+            O W_biz já pondera billing, inquiry, post-view e latência. Esse
+            score segmenta clientes de alto valor para SLA premium, fila
+            prioritária e ofertas dirigidas.
+          </p>
+          <span class="strat-tag">monetização</span>
+        </div>
+        <div class="strat-card a6">
+          <div class="strat-ico">🛡️</div>
+          <h3>Resiliência como diferencial</h3>
+          <p>
+            99,70% de disponibilidade efetiva em serviços críticos de crédito
+            vira argumento comercial e de compliance — diferencial competitivo
+            em contratos enterprise.
+          </p>
+          <span class="strat-tag">vantagem competitiva</span>
+        </div>
+        <div class="strat-highlight">
+          <div class="sh-big">1 motor · N produtos</div>
+          <p>
+            A mesma camada de scoring que economiza USD 50 mil/mês em risco de
+            indisponibilidade é a base reutilizável para recomendação, forecast
+            de demanda e segmentação de valor — sem reconstruir do zero a cada
+            caso de uso.
+          </p>
+        </div>
+      </div>
+
+      <!-- ── Arquitetura To-Be (200GB) ──────────────────────────────── -->
+      <div class="section-head">
+        <div class="eyebrow">Escala de produção</div>
+        <h2>Arquitetura To Be — pronta para 200&nbsp;GB+</h2>
+        <p>
+          O MVP processa ~50&nbsp;MB de CSV em um único job de 11,2&nbsp;s. A
+          200&nbsp;GB (bilhões de interações, histórico completo e múltiplas
+          APIs) o single-node não escala — a arquitetura evolui para ingestão
+          particionada, processamento distribuído e serving híbrido.
+        </p>
+      </div>
+
+      <section class="card full-width">
+        <h2>
+          <span class="h-ico">🏗️</span> Pipeline To Be
+          <span class="card-sub"
+            >data lake + Spark distribuído + serving híbrido</span
+          >
+        </h2>
+
+        <div class="tobe-metrics">
+          <div class="tobe-metric">
+            <div class="tm-val">200 GB+</div>
+            <div class="tm-lbl">volume de entrada (vs ~50 MB no MVP)</div>
+          </div>
+          <div class="tobe-metric">
+            <div class="tm-val">Parquet</div>
+            <div class="tm-lbl">colunar particionado (vs CSV)</div>
+          </div>
+          <div class="tobe-metric">
+            <div class="tm-val">Distribuído</div>
+            <div class="tm-lbl">Spark / EMR (vs single-node)</div>
+          </div>
+        </div>
+
+        <div class="tobe-stack">
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">1</span
+              ><span class="tobe-title"
+                >Ingestão<small>logs em escala</small></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip">Kinesis Firehose</span
+              ><span class="chip">S3 Data Lake</span
+              ><span class="chip">Parquet particionado</span
+              ><span class="chip">Glue Data Catalog</span>
+            </div>
+          </div>
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">2</span
+              ><span class="tobe-title"
+                >Processamento distribuído<small
+                  >feature engineering 200GB</small
+                ></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip blue">EMR / Glue (Spark)</span
+              ><span class="chip blue">Spark ALS — SVD distribuído</span
+              ><span class="chip blue">Athena</span>
+            </div>
+          </div>
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">3</span
+              ><span class="tobe-title"
+                >Feature Store<small>online + offline</small></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip">SageMaker Feature Store</span
+              ><span class="chip">consistência treino/serving</span>
+            </div>
+          </div>
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">4</span
+              ><span class="tobe-title"
+                >Treino &amp; versionamento<small
+                  >governança de modelo</small
+                ></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip">SageMaker Training (distribuído)</span
+              ><span class="chip">Model Registry</span
+              ><span class="chip">A/B test &amp; rollback</span>
+            </div>
+          </div>
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">5</span
+              ><span class="tobe-title"
+                >Serving híbrido<small>real-time + batch</small></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip warm">SageMaker Endpoint (score on-demand)</span
+              ><span class="chip warm">Batch Transform</span
+              ><span class="chip warm">Lambda → ElastiCache warmup</span>
+            </div>
+          </div>
+          <div class="tobe-layer">
+            <div class="tobe-head">
+              <span class="tobe-num">6</span
+              ><span class="tobe-title"
+                >Orquestração &amp; observabilidade<small
+                  >operação gerenciada</small
+                ></span
+              >
+            </div>
+            <div class="tobe-chips">
+              <span class="chip">Step Functions</span
+              ><span class="chip">EventBridge</span
+              ><span class="chip">Model Monitor</span
+              ><span class="chip">CloudWatch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tobe-note">
+          <span>⚠️</span>
+          <span
+            >Gatilho da evolução: a 200&nbsp;GB o TruncatedSVD em memória
+            estoura o nó único e o job ultrapassa o SLA. Parquet particionado +
+            Spark ALS distribuído mantêm o custo sob controle, enquanto o
+            endpoint real-time habilita score sob demanda para outros
+            produtos.</span
+          >
+        </div>
+      </section>
+
+      <section class="card full-width">
+        <h2>
+          <span class="h-ico">🔀</span> As Is × To Be
+          <span class="card-sub">o que muda a 200&nbsp;GB</span>
+        </h2>
+        <div class="table-scroll">
+          <table class="evolution-table">
+            <thead>
+              <tr>
+                <th>Dimensão</th>
+                <th>As Is — MVP</th>
+                <th>To Be — 200&nbsp;GB+</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Volume de entrada</td>
+                <td class="cell-warn">~50&nbsp;MB · 724k linhas</td>
+                <td class="cell-ok">200&nbsp;GB+ · bilhões de linhas</td>
+              </tr>
+              <tr>
+                <td>Formato</td>
+                <td class="cell-warn">CSV</td>
+                <td class="cell-ok">Parquet particionado (data lake)</td>
+              </tr>
+              <tr>
+                <td>Processamento</td>
+                <td class="cell-warn">SageMaker Processing single-node</td>
+                <td class="cell-ok">EMR / Glue — Spark distribuído</td>
+              </tr>
+              <tr>
+                <td>Fatoração</td>
+                <td class="cell-warn">scikit TruncatedSVD (11,2&nbsp;s)</td>
+                <td class="cell-ok">Spark ALS distribuído</td>
+              </tr>
+              <tr>
+                <td>Features</td>
+                <td class="cell-warn">em memória</td>
+                <td class="cell-ok">SageMaker Feature Store</td>
+              </tr>
+              <tr>
+                <td>Serving</td>
+                <td class="cell-warn">batch JSON → warmup</td>
+                <td class="cell-ok">Endpoint real-time + batch transform</td>
+              </tr>
+              <tr>
+                <td>Orquestração</td>
+                <td class="cell-warn">Lambda trigger</td>
+                <td class="cell-ok">Step Functions + EventBridge</td>
+              </tr>
+              <tr>
+                <td>Observabilidade</td>
+                <td class="cell-no">logs básicos</td>
+                <td class="cell-ok">Model Monitor + CloudWatch</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="dashboard-footer">
+      <div class="foot-logo">Cache Warmup Recommender</div>
+      <span id="timestamp"
+        >Atualizado: 28/06/2026 12:23:44 | v2.0-hybrid-svd</span
+      >
+      <span>·</span>
+      <span
+        >Hackathon 2026 · AWS SageMaker + ElastiCache · v2.0-hybrid-svd</span
+      >
+    </footer>
+  </body>
+</html>
