@@ -1,11 +1,5 @@
-# Cache Warmup Recommender — Documentação Técnica Completa
+# Cache Inteligente com ML
 
-**Projeto:** Intelligent Fallback Cache — AWS
-**Versão:** 2.0 (Hybrid SVD)
-**Data:** 2026-05
-**Stack:** AWS SageMaker Processing · S3 · Lambda · Python 3.10
-
----
 
 ## Índice
 
@@ -50,6 +44,119 @@ CSV de logs → S3 → Lambda Trigger → SageMaker Processing Job
 ---
 
 ## 2. Arquitetura
+
+### Diagrama de Arquitetura
+
+```mermaid
+graph TB
+    subgraph Ingestion["Ingestão de Dados"]
+        CSV["📄 CSV Logs<br/>(Polaris/Experian)"]
+    end
+
+    subgraph S3["Amazon S3 (s3-bucket-time-7)"]
+        S3Input["input/<br/>Raw CSVs"]
+        S3Code["code/<br/>recommender_ml.py"]
+        S3Output["output/warmup/<br/>warmup_recommendations.json"]
+    end
+
+    subgraph Lambda["AWS Lambda"]
+        Trigger["🔧 trigger.py<br/>Detecta CSV novo"]
+        RunJob["🔧 run_job.py<br/>Launcher manual/Lambda"]
+        Warmup["🔧 warmup.py<br/>Executa chamadas API"]
+    end
+
+    subgraph SageMaker["Amazon SageMaker"]
+        PJ["Processing Job<br/>ml.m5.xlarge<br/>(scikit-learn 1.2 image)"]
+        Recommender["recommender_ml.py<br/>Modelo Híbrido SVD + Heurístico"]
+    end
+
+    subgraph External["Serviços Externos"]
+        API["🌐 API Experian/Polaris<br/>Cache Warmup"]
+    end
+
+    subgraph Monitoring["Observabilidade"]
+        CW["☁️ CloudWatch<br/>Logs & Métricas"]
+        EB["⏰ EventBridge<br/>Cron diário (opcional)"]
+    end
+
+    CSV --> S3Input
+    S3Input -->|"S3 Event: ObjectCreated"| Trigger
+    EB -->|"Scheduled trigger"| RunJob
+    Trigger --> PJ
+    RunJob --> PJ
+    PJ --> Recommender
+    S3Code -.->|"Código do modelo"| PJ
+    S3Input -.->|"/opt/ml/processing/input"| PJ
+    PJ -->|"/opt/ml/processing/output"| S3Output
+    S3Output -->|"S3 Event: ObjectCreated"| Warmup
+    Warmup -->|"HTTP GET /reports/"| API
+
+    Trigger --> CW
+    PJ --> CW
+    Warmup --> CW
+```
+
+### Diagrama de Sequência
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant CSV as CSV Upload
+    participant S3In as S3 (input/)
+    participant Trigger as Lambda Trigger
+    participant SM as SageMaker<br/>Processing Job
+    participant S3Code as S3 (code/)
+    participant Model as recommender_ml.py
+    participant S3Out as S3 (output/warmup/)
+    participant WarmupLambda as Lambda Warmup
+    participant API as API Experian
+
+    Note over CSV,API: Fluxo Principal — Cache Warmup Recommender
+
+    CSV->>S3In: Upload data.csv (pipe-separated)
+    S3In->>Trigger: S3 Event (s3:ObjectCreated:*)
+
+    activate Trigger
+    Trigger->>Trigger: Valida extensão .csv
+    Trigger->>SM: create_processing_job()<br/>job: cache-warmup-YYYYMMDD-HHMMSS
+    deactivate Trigger
+
+    activate SM
+    SM->>S3In: Download CSV → /opt/ml/processing/input
+    SM->>S3Code: Download código → /opt/ml/processing/code
+    SM->>Model: Executa recommender_ml.py
+
+    activate Model
+    Note right of Model: 1. Carrega CSV (sep='|')
+    Note right of Model: 2. Calcula delta_days (recência)
+    Note right of Model: 3. SVD (n_components=50)
+    Note right of Model: 4. Score = α·V + β·e^(-λ·Δt) + γ·W_biz
+    Note right of Model: 5. Gera rankings por dimensão
+    Model->>Model: Gera warmup_recommendations.json
+    Model-->>SM: Salva em /opt/ml/processing/output
+    deactivate Model
+
+    SM->>S3Out: Upload JSON (EndOfJob)
+    deactivate SM
+
+    S3Out->>WarmupLambda: S3 Event (ObjectCreated)
+
+    activate WarmupLambda
+    WarmupLambda->>S3Out: get_object(warmup_recommendations.json)
+    S3Out-->>WarmupLambda: JSON com top_pairs[]
+
+    loop Para cada par (max 500)
+        WarmupLambda->>API: GET /reports/{report}?customer=X&consulted=Y
+        API-->>WarmupLambda: HTTP 200 (cache populado)
+    end
+
+    WarmupLambda->>WarmupLambda: Log: {ok: N, errors: M}
+    deactivate WarmupLambda
+
+    Note over CSV,API: ✅ Cache pré-aquecido — próximas consultas reais terão hit
+```
+
+### Diagrama ASCII (referência offline)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
